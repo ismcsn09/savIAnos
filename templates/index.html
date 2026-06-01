@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>savIAnos</title>
+    <!-- Conectamos el archivo de estilos CSS -->
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+    <body>
+
+<!-- ================================================
+     PÁGINA DE INICIO
+     Se muestra primero, antes del chat
+================================================ -->
+<div class="landing-page" id="landing-page">
+    
+    <div class="landing-content">
+        
+        <!-- Logo animado -->
+        <div class="landing-avatar">🤖</div>
+        
+        <!-- Nombre del bot -->
+        <h1 class="landing-title">sav<span>IA</span>nos</h1>
+        
+        <!-- Subtítulo -->
+        <p class="landing-subtitle">
+            Tu asistente de Inteligencia Artificial<br>
+            sobre el auge tecnológico en Ecuador
+        </p>
+
+        <!-- Línea divisora -->
+        <div class="landing-divider"></div>
+
+        <!-- Descripción -->
+        <p class="landing-description">
+            Aprende sobre IA, descubre cómo Ecuador se suma 
+            a la revolución tecnológica y explora las oportunidades 
+            que el futuro digital tiene para ti.
+        </p>
+
+        <!-- Badge del colegio -->
+        <div class="landing-badge">
+            🏫 Proyecto del Colegio Técnico Domingo Savio
+        </div>
+
+        <!-- Botón para entrar al chat -->
+        <button class="landing-btn" onclick="enterChat()">
+            Comenzar ➤
+        </button>
+
+    </div>
+
+</div>
+
+<!-- Modal "Sobre savIAnos" -->
+<div class="info-modal" id="info-modal">
+    <div class="info-content">
+        
+        <button class="info-close" onclick="toggleInfo()">✕</button>
+        
+        <div class="info-avatar">🤖</div>
+        <h2>sav<span>IA</span>nos</h2>
+        <p class="info-version">Versión 1.0</p>
+
+        <div class="info-divider"></div>
+
+        <p class="info-text">
+            Asistente educativo de Inteligencia Artificial creado por 
+            estudiantes de Bachillerato Técnico en Desarrollo de Software.
+        </p>
+
+        <div class="info-tags">
+            <span>🐍 Python</span>
+            <span>⚗️ Flask</span>
+            <span>🤖 LLaMA IA</span>
+            <span>🌐 HTML/CSS</span>
+        </div>
+
+        <div class="info-divider"></div>
+
+        <p class="info-school">
+            🏫 <strong>Colegio Técnico Domingo Savio</strong><br>
+            <small>Bachillerato en Desarrollo de Software</small>
+        </p>
+
+    </div>
+</div>
+
+    <!-- ================================================
+         CONTENEDOR PRINCIPAL
+         Todo el chat vive aquí dentro
+    ================================================ -->
+    <div class="chat-container">
+
+        <!-- CABECERA del chat -->
+        <div class="chat-header">
+    <div class="bot-avatar">🤖</div>
+    <div class="bot-info">
+        <h1>savIAnos</h1>
+        <span class="status">● En línea</span>
+    </div>
+    <div class="school-badge">
+    <img src="/static/dsavio.png" alt="Domingo Savio">
+</div>
+
+<!-- Botón de información -->
+<button class="info-btn" onclick="toggleInfo()" title="Sobre savIAnos">
+    ℹ️
+</button>
+    
+    <!-- Botón modo oscuro/claro -->
+    <button class="theme-btn" onclick="toggleTheme()" title="Cambiar tema">
+        🌙
+    </button>
+</div>
+
+        <!-- ÁREA DE MENSAJES
+             Aquí aparecerán los mensajes del usuario y del bot
+             El id="chat-box" es importante: JavaScript lo usa
+             para saber dónde poner los mensajes -->
+        <div class="chat-box" id="chat-box">
+
+            <!-- Mensaje de bienvenida, aparece al cargar la página -->
+           <!-- Mensaje de bienvenida -->
+<div class="message bot-message">
+    <div class="message-content">
+        ¡Hola! Soy <strong>savIAnos</strong> 👋, tu asistente sobre 
+        Inteligencia Artificial y tecnología en Ecuador. 
+        ¿Qué quieres aprender hoy?
+    </div>
+</div>
+
+<!-- Botones de preguntas sugeridas -->
+<div class="suggestions">
+    <button class="suggestion-btn" onclick="askSuggestion('¿Qué es la inteligencia artificial?')">
+        🤖 ¿Qué es la IA?
+    </button>
+    <button class="suggestion-btn" onclick="askSuggestion('¿Cómo se usa la IA en Ecuador?')">
+        🇪🇨 IA en Ecuador
+    </button>
+    <button class="suggestion-btn" onclick="askSuggestion('¿Qué carreras hay en tecnología en Ecuador?')">
+        🎓 Carreras tech
+    </button>
+    <button class="suggestion-btn" onclick="askSuggestion('¿Por qué es importante aprender programación?')">
+        💻 ¿Por qué programar?
+    </button>
+</div>
+
+        </div>
+
+        <!-- ÁREA DE ESCRITURA
+             Aquí el usuario escribe su mensaje -->
+        <div class="chat-input-area">
+
+            <input 
+                type="text" 
+                id="user-input" 
+                placeholder="Escribe tu pregunta sobre IA..."
+                <!-- El id="user-input" lo usa JavaScript para leer lo que escribes -->
+            />
+
+            <button id="send-btn" onclick="sendMessage()">
+                Enviar ➤
+                <!-- onclick="sendMessage()" llama a la función JavaScript
+                     cuando el usuario hace clic -->
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- ================================================
+         JAVASCRIPT
+         La lógica que hace funcionar el chat
+         Va al final del body para que cargue después del HTML
+    ================================================ -->
+    <script>
+
+        // Guardamos el historial de la conversación
+        // Es un array (lista) que va creciendo con cada mensaje
+        let conversationHistory = [];
+
+        // ------------------------------------------------
+        // FUNCIÓN PRINCIPAL: sendMessage()
+        // Se ejecuta cuando el usuario hace clic en Enviar
+        // ------------------------------------------------
+        async function sendMessage() {
+            
+            // 1. Leemos lo que el usuario escribió
+            const input = document.getElementById("user-input");
+            const message = input.value.trim();
+            // .trim() elimina espacios en blanco al inicio y al final
+
+            // 2. Si el input está vacío, no hacemos nada
+            if (!message) return;
+
+            // 3. Mostramos el mensaje del usuario en el chat
+            appendMessage(message, "user");
+
+            // 4. Limpiamos el input para que quede vacío
+            input.value = "";
+
+            // 5. Agregamos el mensaje al historial
+            conversationHistory.push({
+                role: "user",
+                content: message
+            });
+
+            // 6. Mostramos "Escribiendo..." mientras esperamos respuesta
+            const typingIndicator = appendMessage("Escribiendo...", "bot", true);
+
+            // 7. Enviamos el mensaje al servidor Python (app.py)
+            try {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    // fetch() hace una petición HTTP a nuestra ruta /chat
+                    headers: {
+                        "Content-Type": "application/json"
+                        // Le decimos que enviamos datos en formato JSON
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        history: conversationHistory
+                        // Enviamos el mensaje y todo el historial
+                    })
+                });
+
+                const data = await response.json();
+                // Convertimos la respuesta a un objeto JavaScript
+
+                // 8. Quitamos el "Escribiendo..."
+                typingIndicator.remove();
+
+                // 9. Mostramos la respuesta del bot
+                appendMessage(data.reply, "bot");
+
+                // 10. Guardamos la respuesta en el historial
+                conversationHistory.push({
+                    role: "assistant",
+                    content: data.reply
+                });
+
+            } catch (error) {
+                // Si algo sale mal, mostramos un error
+                typingIndicator.remove();
+                appendMessage("Hubo un error. Intenta de nuevo.", "bot");
+                console.error("Error:", error);
+            }
+        }
+
+        // ------------------------------------------------
+        // FUNCIÓN AUXILIAR: appendMessage()
+        // Crea y agrega un mensaje visual al chat
+        // ------------------------------------------------
+        function appendMessage(text, sender, isTyping = false) {
+            
+            const chatBox = document.getElementById("chat-box");
+            // Obtenemos el contenedor de mensajes
+
+            const messageDiv = document.createElement("div");
+            messageDiv.className = `message ${sender}-message`;
+            // Creamos un div con clase "message user-message" o "message bot-message"
+            // Esto permite darle estilos diferentes a cada uno
+
+            const contentDiv = document.createElement("div");
+            contentDiv.className = "message-content";
+            contentDiv.textContent = text;
+
+            messageDiv.appendChild(contentDiv);
+            chatBox.appendChild(messageDiv);
+
+            // Hacemos scroll automático hacia abajo para ver el último mensaje
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            return messageDiv;
+            // Retornamos el div por si necesitamos eliminarlo (como el "Escribiendo...")
+        }
+
+        // ------------------------------------------------
+        // ENVIAR CON LA TECLA ENTER
+        // Para que no sea obligatorio hacer clic en el botón
+        // ------------------------------------------------
+        document.getElementById("user-input").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                sendMessage();
+                // Si la tecla presionada es Enter, enviamos el mensaje
+            }
+        });
+
+        // ------------------------------------------------
+        // FUNCIÓN: askSuggestion()
+        // ------------------------------------------------
+        function askSuggestion(question) {
+            const input = document.getElementById("user-input");
+            input.value = question;
+            sendMessage();
+            document.querySelector(".suggestions").style.display = "none";
+        }
+
+        // ------------------------------------------------
+// FUNCIÓN: toggleTheme()
+// Cambia entre modo claro y oscuro
+// ------------------------------------------------
+function toggleTheme() {
+    const body = document.body;
+    const btn = document.querySelector(".theme-btn");
+    
+    body.classList.toggle("dark");
+    // .toggle() agrega la clase "dark" si no está,
+    // o la quita si ya existe
+    
+    if (body.classList.contains("dark")) {
+        btn.textContent = "☀️";
+        // Si está en modo oscuro, muestra el sol
+    } else {
+        btn.textContent = "🌙";
+        // Si está en modo claro, muestra la luna
+    }
+}
+// ------------------------------------------------
+// FUNCIÓN: enterChat()
+// Oculta la página de inicio y muestra el chat
+// ------------------------------------------------
+function enterChat() {
+    const landing = document.getElementById("landing-page");
+    
+    landing.style.opacity = "0";
+    landing.style.transition = "opacity 0.5s ease";
+    // Desvanece suavemente la página de inicio
+    
+    setTimeout(() => {
+        landing.style.display = "none";
+        // Después de 0.5 segundos la oculta completamente
+    }, 500);
+}
+
+// ------------------------------------------------
+// FUNCIÓN: toggleInfo()
+// Muestra u oculta el modal de información
+// ------------------------------------------------
+function toggleInfo() {
+    const modal = document.getElementById("info-modal");
+    modal.classList.toggle("active");
+    // Agrega o quita la clase "active" para mostrar/ocultar
+}
+
+    </script>
+
+</body>
+</html>
