@@ -1,21 +1,140 @@
 # ============================================================
 # IMPORTACIONES
 # ============================================================
-
 from flask import Flask, render_template, request, jsonify
 from groq import Groq
 from dotenv import load_dotenv
 import os
-# os y dotenv nos permiten leer variables del archivo .env
+import sqlite3
+# sqlite3 es la base de datos incluida en Python
+# guarda los datos en un archivo .db
+from datetime import datetime
+# datetime nos permite guardar la fecha y hora de cada mensaje
 
+# ============================================================
+# INICIALIZACIÓN
+# ============================================================
 load_dotenv()
-# Carga las variables del archivo .env
-
 app = Flask(__name__)
-
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-# os.getenv() lee la key del archivo .env
-# en lugar de tenerla escrita directamente
+
+# ============================================================
+# BASE DE DATOS
+# ============================================================
+
+def init_db():
+    # Crea las tablas si no existen
+    conn = sqlite3.connect('savianos.db')
+    cursor = conn.cursor()
+    
+    # Tabla de mensajes
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS mensajes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            pregunta TEXT NOT NULL,
+            fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    # Tabla de sesiones (usuarios únicos)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS sesiones (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ip TEXT NOT NULL,
+            fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    conn.commit()
+    conn.close()
+
+def guardar_mensaje(pregunta):
+    # Guarda cada pregunta en la base de datos
+    conn = sqlite3.connect('savianos.db')
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO mensajes (pregunta) VALUES (?)', (pregunta,))
+    conn.commit()
+    conn.close()
+
+def guardar_sesion(ip):
+    # Guarda la IP del usuario si es nueva hoy
+    conn = sqlite3.connect('savianos.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO sesiones (ip) 
+        SELECT ? WHERE NOT EXISTS (
+            SELECT 1 FROM sesiones 
+            WHERE ip = ? AND DATE(fecha) = DATE('now')
+        )
+    ''', (ip, ip))
+    conn.commit()
+    conn.close()
+
+def obtener_estadisticas():
+    # Obtiene todas las estadísticas
+    conn = sqlite3.connect('savianos.db')
+    cursor = conn.cursor()
+    
+    # Total de mensajes
+    cursor.execute('SELECT COUNT(*) FROM mensajes')
+    total_mensajes = cursor.fetchone()[0]
+    
+    # Usuarios únicos hoy
+    cursor.execute('''
+        SELECT COUNT(DISTINCT ip) FROM sesiones 
+        WHERE DATE(fecha) = DATE('now')
+    ''')
+    usuarios_hoy = cursor.fetchone()[0]
+    
+    # Total de usuarios únicos
+    cursor.execute('SELECT COUNT(DISTINCT ip) FROM sesiones')
+    total_usuarios = cursor.fetchone()[0]
+    
+    # Mensajes de hoy
+    cursor.execute('''
+        SELECT COUNT(*) FROM mensajes 
+        WHERE DATE(fecha) = DATE('now')
+    ''')
+    mensajes_hoy = cursor.fetchone()[0]
+    
+    # Palabras más frecuentes en las preguntas
+    cursor.execute('SELECT pregunta FROM mensajes ORDER BY fecha DESC LIMIT 100')
+    preguntas = [row[0].lower() for row in cursor.fetchall()]
+    
+    # Contamos temas frecuentes
+    temas = {
+        'IA / Inteligencia Artificial': 0,
+        'Ecuador / Tecnología': 0,
+        'Programación': 0,
+        'Carreras tech': 0,
+        'Machine Learning': 0,
+        'Otros': 0
+    }
+    
+    for pregunta in preguntas:
+        if any(w in pregunta for w in ['ia', 'inteligencia', 'artificial', 'robot']):
+            temas['IA / Inteligencia Artificial'] += 1
+        elif any(w in pregunta for w in ['ecuador', 'tecnología', 'tech', 'digital']):
+            temas['Ecuador / Tecnología'] += 1
+        elif any(w in pregunta for w in ['programar', 'código', 'programación', 'python']):
+            temas['Programación'] += 1
+        elif any(w in pregunta for w in ['carrera', 'universidad', 'estudiar', 'trabajo']):
+            temas['Carreras tech'] += 1
+        elif any(w in pregunta for w in ['machine', 'learning', 'deep', 'neural']):
+            temas['Machine Learning'] += 1
+        else:
+            temas['Otros'] += 1
+    
+    conn.close()
+    
+    return {
+        'total_mensajes': total_mensajes,
+        'usuarios_hoy': usuarios_hoy,
+        'total_usuarios': total_usuarios,
+        'mensajes_hoy': mensajes_hoy,
+        'temas': temas
+    }
+
 # ============================================================
 # PERSONALIDAD DEL BOT
 # ============================================================
@@ -103,6 +222,9 @@ Educar a jóvenes ecuatorianos sobre:
 
 @app.route("/")
 def home():
+    # Guardamos la sesión del usuario
+    ip = request.remote_addr
+    guardar_sesion(ip)
     return render_template("index.html")
 
 @app.route("/chat", methods=["POST"])
@@ -112,7 +234,9 @@ def chat():
         user_message = data.get("message", "")
         conversation_history = data.get("history", [])
 
-        # Llamada a la IA de Groq
+        # Guardamos la pregunta en la base de datos
+        guardar_mensaje(user_message)
+
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             max_tokens=1024,
@@ -127,25 +251,28 @@ def chat():
         return jsonify({"reply": bot_reply})
 
     except Exception as e:
-        # Si hay cualquier error, lo muestra en la terminal Y en el chat
-        print("ERROR DETECTADO:", str(e))
+        print("ERROR:", str(e))
         return jsonify({"reply": f"Error: {str(e)}"})
 
+@app.route("/estadisticas")
+def estadisticas():
+    # Ruta que devuelve las estadísticas en JSON
+    stats = obtener_estadisticas()
+    return jsonify(stats)
+
+@app.route("/panel")
+def panel():
+    # Página del panel de estadísticas
+    return render_template("panel.html")
+
 # ============================================================
-# ARRANCAR EL SERVIDOR
+# ARRANCAR
 # ============================================================
 
 if __name__ == "__main__":
- import webbrowser
-import threading
-
-def abrir_navegador():
-    webbrowser.open("http://127.0.0.1:5000")
-    # Abre el navegador automáticamente
-
-if __name__ == "__main__":
-    threading.Timer(1.5, abrir_navegador).start()
-    # Espera 1.5 segundos para que Flask arranque primero
-    # y luego abre el navegador
+    init_db()
+    # Inicializamos la base de datos al arrancar
+    import webbrowser
+    import threading
+    threading.Timer(1.5, lambda: webbrowser.open("http://127.0.0.1:5000")).start()
     app.run(debug=False, host="0.0.0.0")
-    # debug=False para el ejecutable final
