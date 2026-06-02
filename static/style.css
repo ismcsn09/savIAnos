@@ -804,3 +804,127 @@ body.light .suggestion-btn {
         font-size: 3rem;
     }
 }
+/* ================================================
+   PANEL DE HISTORIAL
+================================================ */
+.historial-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 300px;
+    height: 100%;
+    background: rgba(0, 10, 35, 0.98);
+    border-right: 1px solid rgba(0, 68, 204, 0.3);
+    backdrop-filter: blur(20px);
+    z-index: 50;
+    display: none;
+    flex-direction: column;
+    padding: 20px;
+    gap: 15px;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+.historial-panel.active {
+    display: flex;
+}
+
+.historial-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.historial-header h3 {
+    color: white;
+    font-size: 1rem;
+}
+
+.historial-close {
+    background: rgba(0, 68, 204, 0.2);
+    border: 1px solid rgba(0, 68, 204, 0.4);
+    color: white;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.nueva-conv-btn {
+    background: linear-gradient(135deg, #0033aa, #0055ff);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.nueva-conv-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 15px rgba(0, 68, 204, 0.4);
+}
+
+.historial-lista {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.historial-item {
+    background: rgba(0, 30, 80, 0.6);
+    border: 1px solid rgba(0, 68, 204, 0.2);
+    border-radius: 10px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.historial-item:hover {
+    background: rgba(0, 68, 204, 0.3);
+    border-color: rgba(0, 68, 204, 0.5);
+}
+
+.historial-item.active-conv {
+    border-color: #4d8aff;
+    background: rgba(0, 68, 204, 0.2);
+}
+
+.historial-titulo {
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Corta el texto si es muy largo */
+}
+
+.historial-fecha {
+    color: rgba(255,255,255,0.4);
+    font-size: 0.75rem;
+}
+
+.historial-vacio {
+    color: rgba(255,255,255,0.3);
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 20px 0;
+}
+
+/* Responsive historial en celular */
+@media (max-width: 768px) {
+    .historial-panel {
+        width: 100%;
+    }
+}
