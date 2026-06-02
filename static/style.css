@@ -1,340 +1,291 @@
 /* ================================================
    RESET Y BASE
-   Eliminamos estilos por defecto del navegador
 ================================================ */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    /* box-sizing hace que el tamaño de los elementos
-       incluya el padding y el borde, más fácil de manejar */
 }
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    /* Fuente moderna y legible */
-    background: linear-gradient(135deg, #001f5b, #003399, #0055cc);
-    /* Fondo degradado en azul marino, colores que evocan
-       tecnología y profesionalismo */
+    background: #020818;
     min-height: 100vh;
-    /* 100vh = 100% de la altura de la pantalla */
     display: flex;
     justify-content: center;
     align-items: center;
-    /* Estos tres centran el chat en la pantalla */
+    overflow: hidden;
+    /* Ocultamos el scroll del body porque el chat tiene su propio scroll */
 }
 
 /* ================================================
-   CONTENEDOR PRINCIPAL DEL CHAT
+   FONDO ANIMADO CON PARTÍCULAS
+   Crea un efecto de estrellas/partículas flotantes
 ================================================ */
-.chat-container {
-    width: 420px;
-    height: 650px;
-    background: #ffffff;
-    border-radius: 20px;
-    /* Bordes redondeados */
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-    /* Sombra para dar efecto de profundidad */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(ellipse at 20% 50%, rgba(0, 68, 204, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(0, 34, 102, 0.2) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 80%, rgba(0, 100, 255, 0.1) 0%, transparent 50%);
+    /* Gradientes radiales que dan profundidad al fondo */
+    animation: bgPulse 8s ease-in-out infinite;
+    z-index: 0;
+}
+
+@keyframes bgPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+    /* El fondo respira suavemente */
+}
+
+/* ================================================
+   LAYOUT PRINCIPAL - APROVECHA TODA LA PANTALLA
+================================================ */
+.main-layout {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    z-index: 1;
+}
+
+/* ================================================
+   PANEL IZQUIERDO - INFO DEL BOT
+================================================ */
+.side-panel {
+    width: 320px;
+    min-width: 320px;
+    background: rgba(0, 15, 50, 0.8);
+    backdrop-filter: blur(20px);
+    /* Efecto vidrio esmerilado */
+    border-right: 1px solid rgba(0, 68, 204, 0.3);
     display: flex;
     flex-direction: column;
-    /* Los elementos internos se apilan verticalmente */
-    overflow: hidden;
-    /* Oculta lo que se salga del contenedor */
+    padding: 40px 30px;
+    gap: 30px;
 }
 
-/* ================================================
-   CABECERA DEL CHAT
-================================================ */
-.chat-header {
-    background: linear-gradient(90deg, #001f5b, #0044cc);
-    /* Degradado azul oscuro para la cabecera */
+.side-logo {
+    text-align: center;
+}
+
+.side-avatar {
+    font-size: 4rem;
+    animation: bounce 3s ease-in-out infinite;
+    display: block;
+    margin-bottom: 15px;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.side-title {
+    font-size: 2rem;
+    font-weight: 800;
     color: white;
-    padding: 18px 20px;
+    letter-spacing: 2px;
+}
+
+.side-title span {
+    color: #4d8aff;
+    /* La parte "IA" en azul brillante */
+}
+
+.side-subtitle {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.5);
+    margin-top: 5px;
+}
+
+.side-status {
     display: flex;
     align-items: center;
-    gap: 12px;
-    /* gap = espacio entre los elementos dentro del header */
+    gap: 8px;
+    background: rgba(0, 68, 204, 0.2);
+    padding: 10px 15px;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 68, 204, 0.3);
 }
 
-.bot-avatar {
-    font-size: 2rem;
-    /* Tamaño del emoji del robot */
-    background: rgba(255,255,255,0.15);
-    padding: 8px;
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: #00ff88;
     border-radius: 50%;
-    /* Lo hace circular */
+    animation: pulse 2s infinite;
+    /* El punto verde pulsa para indicar que está activo */
 }
 
-.bot-info h1 {
-    font-size: 1.3rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    /* Espaciado entre letras, da estilo al nombre savIAnos */
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
+    50% { box-shadow: 0 0 0 6px rgba(0, 255, 136, 0); }
 }
 
-.status {
+.status-text {
+    color: rgba(255,255,255,0.8);
+    font-size: 0.85rem;
+}
+
+.side-divider {
+    width: 100%;
+    height: 1px;
+    background: rgba(0, 68, 204, 0.3);
+}
+
+.side-info h3 {
+    color: rgba(255,255,255,0.5);
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+}
+
+.side-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.side-tag {
+    background: rgba(0, 68, 204, 0.2);
+    border: 1px solid rgba(0, 68, 204, 0.4);
+    color: #90b4ff;
+    padding: 5px 12px;
+    border-radius: 20px;
     font-size: 0.75rem;
-    color: #90ee90;
-    /* Verde claro para el indicador "En línea" */
 }
 
-.school-badge {
-    margin-left: auto;
-    background: white;
-    padding: 3px;
+.side-school {
+    margin-top: auto;
+    /* Empuja el badge del colegio hacia abajo */
+    text-align: center;
+}
+
+.school-logo-circle {
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    background: white;
+    padding: 5px;
+    margin: 0 auto 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
 }
 
-.school-badge img {
+.school-logo-circle img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     border-radius: 50%;
 }
 
+.school-name {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.75rem;
+    line-height: 1.5;
+}
+
 /* ================================================
-   ÁREA DE MENSAJES
+   ÁREA PRINCIPAL DEL CHAT
 ================================================ */
-.chat-box {
+.chat-area {
     flex: 1;
-    /* Ocupa todo el espacio disponible entre el header y el input */
-    overflow-y: auto;
-    /* Scroll vertical cuando hay muchos mensajes */
-    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    /* Espacio entre mensajes */
-    background: #f5f7fb;
+    background: rgba(0, 10, 35, 0.6);
+    backdrop-filter: blur(10px);
 }
 
-/* Scrollbar personalizada (solo Chrome/Edge) */
-.chat-box::-webkit-scrollbar {
-    width: 4px;
-}
-.chat-box::-webkit-scrollbar-thumb {
-    background: #0044cc;
-    border-radius: 4px;
-}
-
-/* ================================================
-   MENSAJES
-================================================ */
-.message {
+/* Header del chat */
+.chat-header {
+    background: rgba(0, 15, 50, 0.9);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0, 68, 204, 0.3);
+    padding: 20px 30px;
     display: flex;
-    max-width: 80%;
-    /* Los mensajes no ocupan todo el ancho */
+    align-items: center;
+    justify-content: space-between;
 }
 
-/* Mensajes del BOT → alineados a la izquierda */
-.bot-message {
-    align-self: flex-start;
-}
-
-/* Mensajes del USUARIO → alineados a la derecha */
-.user-message {
-    align-self: flex-end;
-}
-
-.message-content {
-    padding: 12px 16px;
-    border-radius: 18px;
-    font-size: 0.9rem;
-    line-height: 1.5;
-    /* Espacio entre líneas para mejor lectura */
-}
-
-/* Estilo del globo del BOT */
-.bot-message .message-content {
-    background: #ffffff;
-    color: #1a1a2e;
-    border: 1px solid #e0e0e0;
-    border-bottom-left-radius: 4px;
-    /* Esquina "picuda" hacia la izquierda */
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-/* Estilo del globo del USUARIO */
-.user-message .message-content {
-    background: linear-gradient(135deg, #0044cc, #0066ff);
+.chat-header-left h2 {
     color: white;
-    border-bottom-right-radius: 4px;
-    /* Esquina "picuda" hacia la derecha */
-    box-shadow: 0 2px 8px rgba(0, 68, 204, 0.3);
+    font-size: 1.1rem;
+    font-weight: 600;
 }
 
-/* ================================================
-   ÁREA DE INPUT (donde se escribe)
-================================================ */
-.chat-input-area {
-    padding: 16px;
-    background: #ffffff;
-    border-top: 1px solid #e8e8e8;
+.chat-header-left p {
+    color: rgba(255,255,255,0.5);
+    font-size: 0.8rem;
+    margin-top: 2px;
+}
+
+.chat-header-right {
     display: flex;
     gap: 10px;
-    /* Espacio entre el input y el botón */
 }
 
-.chat-input-area input {
-    flex: 1;
-    /* El input ocupa todo el espacio disponible */
-    padding: 12px 16px;
-    border: 2px solid #e0e0e0;
-    border-radius: 25px;
-    /* Bordes muy redondeados, estilo moderno */
-    font-size: 0.9rem;
-    outline: none;
-    transition: border-color 0.3s;
-    /* Animación suave al hacer foco */
-}
-
-.chat-input-area input:focus {
-    border-color: #0044cc;
-    /* El borde se vuelve azul cuando el usuario hace clic */
-}
-
-.chat-input-area button {
-    padding: 12px 20px;
-    background: linear-gradient(135deg, #001f5b, #0044cc);
+.header-btn {
+    background: rgba(0, 68, 204, 0.2);
+    border: 1px solid rgba(0, 68, 204, 0.4);
     color: white;
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    /* El cursor se convierte en manito al pasar por encima */
-    font-size: 0.9rem;
-    font-weight: 600;
-    transition: transform 0.2s, box-shadow 0.2s;
-    /* Animación suave al hacer hover */
-}
-
-.chat-input-area button:hover {
-    transform: scale(1.05);
-    /* Se agranda un poco al pasar el mouse */
-    box-shadow: 0 4px 15px rgba(0, 68, 204, 0.4);
-}
-/* ================================================
-   BOTONES DE SUGERENCIAS
-================================================ */
-.suggestions {
-    display: flex;
-    flex-wrap: wrap;
-    /* Si no caben en una fila, bajan a la siguiente */
-    gap: 8px;
-    padding: 4px 0;
-}
-
-.suggestion-btn {
-    background: white;
-    border: 2px solid #0044cc;
-    color: #0044cc;
-    padding: 8px 12px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    font-weight: 600;
-    transition: all 0.2s;
-}
-
-.suggestion-btn:hover {
-    background: #0044cc;
-    color: white;
-    /* Al pasar el mouse se invierte el color */
-    transform: scale(1.05);
-}
-/* ================================================
-   MODO OSCURO
-================================================ */
-.theme-btn {
-    background: rgba(255,255,255,0.2);
-    border: none;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
-    width: 36px;
-    height: 36px;
     cursor: pointer;
-    font-size: 1.1rem;
+    font-size: 1rem;
     transition: all 0.3s;
-    margin-left: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.theme-btn:hover {
-    background: rgba(255,255,255,0.35);
+.header-btn:hover {
+    background: rgba(0, 68, 204, 0.5);
     transform: scale(1.1);
 }
 
-/* Cuando el body tiene la clase "dark", cambian los colores */
-body.dark .chat-container {
-    background: #1a1a2e;
-}
-
-body.dark .chat-box {
-    background: #16213e;
-}
-
-body.dark .bot-message .message-content {
-    background: #0f3460;
-    color: #e0e0e0;
-    border-color: #0f3460;
-}
-
-body.dark .chat-input-area {
-    background: #1a1a2e;
-    border-top-color: #0f3460;
-}
-
-body.dark .chat-input-area input {
-    background: #16213e;
-    color: #e0e0e0;
-    border-color: #0f3460;
-}
-
-body.dark .chat-input-area input::placeholder {
-    color: #888;
-}
-
-body.dark .suggestion-btn {
-    background: #16213e;
-    color: #90b4ff;
-    border-color: #90b4ff;
-}
-
-/* ================================================
-   PÁGINA DE INICIO
-================================================ */
-.landing-page {
-    position: fixed;
-    /* Cubre toda la pantalla */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #001f5b, #003399, #0055cc);
+/* Área de mensajes */
+.chat-box {
+    flex: 1;
+    overflow-y: auto;
+    padding: 30px;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-    /* Aparece encima de todo */
+    flex-direction: column;
+    gap: 16px;
 }
 
-.landing-content {
-    text-align: center;
-    color: white;
-    padding: 40px;
-    max-width: 500px;
-    animation: fadeInUp 0.8s ease;
-    /* Animación de entrada */
+.chat-box::-webkit-scrollbar {
+    width: 4px;
 }
 
-/* Animación de entrada desde abajo */
-@keyframes fadeInUp {
+.chat-box::-webkit-scrollbar-thumb {
+    background: rgba(0, 68, 204, 0.5);
+    border-radius: 4px;
+}
+
+/* Mensajes */
+.message {
+    display: flex;
+    max-width: 70%;
+    animation: messageIn 0.3s ease;
+    /* Animación de entrada para cada mensaje */
+}
+
+@keyframes messageIn {
     from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(10px);
+        /* El mensaje aparece desde abajo */
     }
     to {
         opacity: 1;
@@ -342,98 +293,114 @@ body.dark .suggestion-btn {
     }
 }
 
-.landing-avatar {
-    font-size: 5rem;
-    margin-bottom: 20px;
-    animation: bounce 2s infinite;
-    /* El robot rebota infinitamente */
+.bot-message {
+    align-self: flex-start;
 }
 
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-15px); }
-    /* Sube y baja suavemente */
+.user-message {
+    align-self: flex-end;
 }
 
-.landing-title {
-    font-size: 3.5rem;
-    font-weight: 800;
-    letter-spacing: 3px;
-    margin-bottom: 10px;
-}
-
-.landing-title span {
-    color: #90b4ff;
-    /* La parte "IA" en azul claro para resaltarla */
-}
-
-.landing-subtitle {
-    font-size: 1.1rem;
-    opacity: 0.85;
+.message-content {
+    padding: 14px 18px;
+    border-radius: 18px;
+    font-size: 0.9rem;
     line-height: 1.6;
-    margin-bottom: 25px;
 }
 
-.landing-divider {
-    width: 60px;
-    height: 3px;
-    background: #90b4ff;
-    margin: 0 auto 25px;
-    border-radius: 3px;
+.bot-message .message-content {
+    background: rgba(0, 30, 80, 0.8);
+    color: #e0e8ff;
+    border: 1px solid rgba(0, 68, 204, 0.3);
+    border-bottom-left-radius: 4px;
+    backdrop-filter: blur(10px);
 }
 
-.landing-description {
+.user-message .message-content {
+    background: linear-gradient(135deg, #0044cc, #0066ff);
+    color: white;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 4px 15px rgba(0, 68, 204, 0.4);
+}
+
+/* Input area */
+.chat-input-area {
+    padding: 20px 30px;
+    background: rgba(0, 15, 50, 0.9);
+    border-top: 1px solid rgba(0, 68, 204, 0.3);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.chat-input-area input {
+    flex: 1;
+    padding: 14px 20px;
+    background: rgba(0, 30, 80, 0.6);
+    border: 1px solid rgba(0, 68, 204, 0.3);
+    border-radius: 25px;
     font-size: 0.95rem;
-    opacity: 0.75;
-    line-height: 1.7;
-    margin-bottom: 25px;
+    color: white;
+    outline: none;
+    transition: border-color 0.3s;
 }
 
-.landing-badge {
-    display: inline-block;
-    background: rgba(255,255,255,0.15);
-    padding: 8px 18px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    margin-bottom: 35px;
+.chat-input-area input::placeholder {
+    color: rgba(255,255,255,0.3);
 }
 
-.landing-btn {
-    background: white;
-    color: #001f5b;
+.chat-input-area input:focus {
+    border-color: #0044cc;
+    background: rgba(0, 30, 80, 0.8);
+}
+
+.chat-input-area button {
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #0033aa, #0055ff);
+    color: white;
     border: none;
-    padding: 15px 40px;
-    border-radius: 30px;
-    font-size: 1.1rem;
-    font-weight: 700;
+    border-radius: 25px;
     cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
     transition: all 0.3s;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 15px rgba(0, 68, 204, 0.4);
+    white-space: nowrap;
 }
 
-.landing-btn:hover {
+.chat-input-area button:hover {
     transform: scale(1.05);
-    box-shadow: 0 12px 35px rgba(0,0,0,0.4);
+    box-shadow: 0 6px 20px rgba(0, 68, 204, 0.6);
 }
 
 /* ================================================
-   BOTÓN INFO
+   BOTONES DE SUGERENCIAS
 ================================================ */
-.info-btn {
-    background: rgba(255,255,255,0.2);
-    border: none;
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    cursor: pointer;
-    font-size: 1.1rem;
-    transition: all 0.3s;
-    margin-left: 4px;
+.suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 4px 0;
 }
 
-.info-btn:hover {
-    background: rgba(255,255,255,0.35);
-    transform: scale(1.1);
+.suggestion-btn {
+    background: rgba(0, 30, 80, 0.6);
+    border: 1px solid rgba(0, 68, 204, 0.5);
+    color: #90b4ff;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    backdrop-filter: blur(10px);
+}
+
+.suggestion-btn:hover {
+    background: rgba(0, 68, 204, 0.4);
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0, 68, 204, 0.3);
 }
 
 /* ================================================
@@ -441,47 +408,46 @@ body.dark .suggestion-btn {
 ================================================ */
 .info-modal {
     display: none;
-    /* Oculto por defecto */
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
-    /* Fondo semitransparente */
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
     z-index: 100;
     justify-content: center;
     align-items: center;
-    border-radius: 20px;
 }
 
 .info-modal.active {
     display: flex;
-    /* Se muestra cuando tiene la clase "active" */
 }
 
 .info-content {
-    background: white;
+    background: rgba(0, 15, 50, 0.95);
+    border: 1px solid rgba(0, 68, 204, 0.4);
     border-radius: 20px;
-    padding: 30px;
-    width: 85%;
+    padding: 40px;
+    width: 450px;
     text-align: center;
     position: relative;
     animation: fadeInUp 0.3s ease;
+    backdrop-filter: blur(20px);
 }
 
 .info-close {
     position: absolute;
-    top: 12px;
-    right: 12px;
-    background: #f0f0f0;
-    border: none;
+    top: 15px;
+    right: 15px;
+    background: rgba(0, 68, 204, 0.2);
+    border: 1px solid rgba(0, 68, 204, 0.4);
+    color: white;
     border-radius: 50%;
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     cursor: pointer;
     font-size: 0.9rem;
-    font-weight: bold;
 }
 
 .info-avatar {
@@ -492,17 +458,17 @@ body.dark .suggestion-btn {
 .info-content h2 {
     font-size: 1.8rem;
     font-weight: 800;
-    color: #001f5b;
+    color: white;
     letter-spacing: 2px;
 }
 
 .info-content h2 span {
-    color: #0044cc;
+    color: #4d8aff;
 }
 
 .info-version {
     font-size: 0.8rem;
-    color: #888;
+    color: rgba(255,255,255,0.4);
     margin-bottom: 15px;
 }
 
@@ -516,7 +482,7 @@ body.dark .suggestion-btn {
 
 .info-text {
     font-size: 0.9rem;
-    color: #444;
+    color: rgba(255,255,255,0.7);
     line-height: 1.6;
     margin-bottom: 15px;
 }
@@ -530,99 +496,181 @@ body.dark .suggestion-btn {
 }
 
 .info-tags span {
-    background: #f0f4ff;
-    color: #0044cc;
+    background: rgba(0, 68, 204, 0.2);
+    border: 1px solid rgba(0, 68, 204, 0.4);
+    color: #90b4ff;
     padding: 5px 12px;
     border-radius: 20px;
     font-size: 0.8rem;
-    font-weight: 600;
 }
 
 .info-school {
-    font-size: 0.9rem;
-    color: #333;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.6);
     line-height: 1.8;
 }
 
-/* Modo oscuro para el modal */
-body.dark .info-content {
-    background: #1a1a2e;
-    color: #e0e0e0;
+/* ================================================
+   PÁGINA DE INICIO
+================================================ */
+.landing-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #020818;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
 }
 
-body.dark .info-content h2 {
-    color: #90b4ff;
+.landing-page::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(ellipse at 30% 40%, rgba(0, 68, 204, 0.2) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 60%, rgba(0, 34, 102, 0.2) 0%, transparent 60%);
+    animation: bgPulse 6s ease-in-out infinite;
 }
 
-body.dark .info-text {
-    color: #ccc;
-}
-
-body.dark .info-school {
-    color: #ccc;
-}
-
-body.dark .info-tags span {
-    background: #0f3460;
-    color: #90b4ff;
-}
-
-body.dark .info-close {
-    background: #0f3460;
+.landing-content {
+    text-align: center;
     color: white;
+    padding: 40px;
+    max-width: 600px;
+    animation: fadeInUp 0.8s ease;
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.landing-avatar {
+    font-size: 6rem;
+    margin-bottom: 20px;
+    animation: bounce 3s ease-in-out infinite;
+    display: block;
+}
+
+.landing-title {
+    font-size: 5rem;
+    font-weight: 800;
+    letter-spacing: 4px;
+    margin-bottom: 10px;
+    text-shadow: 0 0 40px rgba(0, 68, 204, 0.5);
+}
+
+.landing-title span {
+    color: #4d8aff;
+}
+
+.landing-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.7;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.landing-divider {
+    width: 60px;
+    height: 3px;
+    background: #4d8aff;
+    margin: 0 auto 30px;
+    border-radius: 3px;
+}
+
+.landing-description {
+    font-size: 0.95rem;
+    opacity: 0.6;
+    line-height: 1.7;
+    margin-bottom: 30px;
+}
+
+.landing-badge {
+    display: inline-block;
+    background: rgba(0, 68, 204, 0.2);
+    border: 1px solid rgba(0, 68, 204, 0.4);
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    margin-bottom: 40px;
+    color: #90b4ff;
+}
+
+.landing-btn {
+    background: linear-gradient(135deg, #0033aa, #0055ff);
+    color: white;
+    border: none;
+    padding: 16px 50px;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 8px 30px rgba(0, 68, 204, 0.5);
+    letter-spacing: 1px;
+}
+
+.landing-btn:hover {
+    transform: scale(1.05) translateY(-3px);
+    box-shadow: 0 12px 40px rgba(0, 68, 204, 0.7);
 }
 
 /* ================================================
-   RESPONSIVE DESIGN
-   Adapta el diseño a pantallas pequeñas (celular)
-   @media query se activa cuando la pantalla 
-   es menor a 480px de ancho
+   MODO OSCURO (ahora es el modo por defecto)
 ================================================ */
-@media (max-width: 480px) {
+.theme-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-    /* El chat ocupa toda la pantalla en celular */
-    .chat-container {
+.theme-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: scale(1.1);
+}
+
+/* ================================================
+   RESPONSIVE - CELULAR
+================================================ */
+@media (max-width: 768px) {
+    .side-panel {
+        display: none;
+        /* Ocultamos el panel lateral en celular */
+    }
+
+    .chat-area {
         width: 100%;
-        height: 100vh;
-        /* 100vh = altura completa de la pantalla */
-        border-radius: 0;
-        /* Sin bordes redondeados en celular */
     }
 
-    /* El body no necesita centrar en celular */
-    body {
-        align-items: flex-start;
-        padding: 0;
+    .message {
+        max-width: 90%;
     }
 
-    /* Título más pequeño en celular */
-    .bot-info h1 {
-        font-size: 1.1rem;
-    }
-
-    /* Página de inicio adaptada */
     .landing-title {
-        font-size: 2.5rem;
+        font-size: 3rem;
     }
 
-    .landing-content {
-        padding: 30px 20px;
+    .chat-box {
+        padding: 15px;
     }
 
-    /* Botones de sugerencias más pequeños */
-    .suggestion-btn {
-        font-size: 0.75rem;
-        padding: 7px 10px;
-    }
-
-    /* Input y botón enviar más cómodos al tacto */
-    .chat-input-area input {
-        font-size: 1rem;
-        /* Evita que el celular haga zoom al escribir */
-    }
-
-    .chat-input-area button {
-        padding: 12px 16px;
-        font-size: 0.85rem;
+    .chat-input-area {
+        padding: 15px;
     }
 }
