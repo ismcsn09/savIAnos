@@ -222,7 +222,8 @@ Educar a jóvenes ecuatorianos sobre:
 
 @app.route("/")
 def home():
-    # Guardamos la sesión del usuario
+    init_db()
+    # Inicializa la base de datos si no existe
     ip = request.remote_addr
     guardar_sesion(ip)
     return render_template("index.html")
