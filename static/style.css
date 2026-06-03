@@ -65,9 +65,7 @@ body::before {
     overflow-y: auto;
 }
 
-.side-logo {
-    text-align: center;
-}
+.side-logo { text-align: center; }
 
 .side-avatar {
     font-size: 3.5rem;
@@ -88,9 +86,7 @@ body::before {
     letter-spacing: 2px;
 }
 
-.side-title span {
-    color: #4d8aff;
-}
+.side-title span { color: #4d8aff; }
 
 .side-subtitle {
     font-size: 0.75rem;
@@ -249,6 +245,9 @@ body::before {
     transform: scale(1.1);
 }
 
+/* ================================================
+   MENSAJES
+================================================ */
 .chat-box {
     flex: 1;
     overflow-y: auto;
@@ -266,7 +265,7 @@ body::before {
 
 .message {
     display: flex;
-    max-width: 70%;
+    max-width: 60%;
     animation: messageIn 0.3s ease;
 }
 
@@ -283,6 +282,8 @@ body::before {
     border-radius: 18px;
     font-size: 0.88rem;
     line-height: 1.6;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .bot-message .message-content {
@@ -290,7 +291,6 @@ body::before {
     color: #e0e8ff;
     border: 1px solid rgba(0, 68, 204, 0.3);
     border-bottom-left-radius: 4px;
-    backdrop-filter: blur(10px);
 }
 
 .user-message .message-content {
@@ -300,6 +300,9 @@ body::before {
     box-shadow: 0 4px 15px rgba(0, 68, 204, 0.4);
 }
 
+/* ================================================
+   INPUT
+================================================ */
 .chat-input-area {
     padding: 15px 25px;
     background: rgba(0, 15, 50, 0.9);
@@ -324,6 +327,7 @@ body::before {
 }
 
 .chat-input-area input::placeholder { color: rgba(255,255,255,0.3); }
+
 .chat-input-area input:focus {
     border-color: #0044cc;
     background: rgba(0, 30, 80, 0.8);
@@ -374,132 +378,6 @@ body::before {
     background: rgba(0, 68, 204, 0.4);
     color: white;
     transform: scale(1.05);
-}
-
-/* ================================================
-   HISTORIAL PANEL
-================================================ */
-.historial-panel {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(5px);
-    z-index: 100;
-    display: none;
-    justify-content: flex-start;
-    align-items: stretch;
-}
-
-.historial-panel.active {
-    display: flex;
-}
-
-.historial-inner {
-    width: 300px;
-    height: 100%;
-    background: rgba(0, 8, 30, 0.99);
-    border-right: 1px solid rgba(0, 68, 204, 0.3);
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    gap: 15px;
-    animation: slideIn 0.3s ease;
-}
-
-@keyframes slideIn {
-    from { transform: translateX(-100%); }
-    to { transform: translateX(0); }
-}
-
-.historial-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.historial-header h3 {
-    color: white;
-    font-size: 1rem;
-}
-
-.historial-close {
-    background: rgba(0, 68, 204, 0.2);
-    border: 1px solid rgba(0, 68, 204, 0.4);
-    color: white;
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
-    cursor: pointer;
-    font-size: 0.8rem;
-}
-
-.nueva-conv-btn {
-    background: linear-gradient(135deg, #0033aa, #0055ff);
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 600;
-    transition: all 0.3s;
-}
-
-.nueva-conv-btn:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 15px rgba(0, 68, 204, 0.4);
-}
-
-.historial-lista {
-    flex: 1;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.historial-item {
-    background: rgba(0, 30, 80, 0.6);
-    border: 1px solid rgba(0, 68, 204, 0.2);
-    border-radius: 10px;
-    padding: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.historial-item:hover {
-    background: rgba(0, 68, 204, 0.3);
-    border-color: rgba(0, 68, 204, 0.5);
-}
-
-.historial-item.active-conv {
-    border-color: #4d8aff;
-    background: rgba(0, 68, 204, 0.2);
-}
-
-.historial-titulo {
-    color: white;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-bottom: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.historial-fecha {
-    color: rgba(255,255,255,0.4);
-    font-size: 0.75rem;
-}
-
-.historial-vacio {
-    color: rgba(255,255,255,0.3);
-    font-size: 0.85rem;
-    text-align: center;
-    padding: 20px 0;
 }
 
 /* ================================================
@@ -657,6 +535,7 @@ body::before {
     font-weight: 800;
     letter-spacing: 4px;
     margin-bottom: 10px;
+    color: white;
     text-shadow: 0 0 40px rgba(0, 68, 204, 0.5);
 }
 
@@ -664,7 +543,7 @@ body::before {
 
 .landing-subtitle {
     font-size: 1rem;
-    opacity: 0.7;
+    color: rgba(255,255,255,0.7);
     line-height: 1.6;
     margin-bottom: 25px;
 }
@@ -679,7 +558,7 @@ body::before {
 
 .landing-description {
     font-size: 0.9rem;
-    opacity: 0.6;
+    color: rgba(255,255,255,0.6);
     line-height: 1.7;
     margin-bottom: 25px;
 }
@@ -717,7 +596,7 @@ body::before {
    THEME BTN
 ================================================ */
 .theme-btn {
-    background: rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.1) !important;
     border: 1px solid rgba(255,255,255,0.2) !important;
 }
 
@@ -725,29 +604,24 @@ body::before {
    MODO CLARO
 ================================================ */
 body.light { background: #e8eeff; }
-
-body.light .side-panel {
-    background: rgba(255, 255, 255, 0.9);
-    border-right-color: rgba(0, 68, 204, 0.2);
-}
-
+body.light .side-panel { background: rgba(255,255,255,0.9); border-right-color: rgba(0,68,204,0.2); }
 body.light .side-title { color: #001f5b; }
-body.light .side-subtitle { color: rgba(0, 0, 0, 0.5); }
-body.light .side-status { background: rgba(0, 68, 204, 0.1); }
+body.light .side-subtitle { color: rgba(0,0,0,0.5); }
+body.light .side-status { background: rgba(0,68,204,0.1); }
 body.light .status-text { color: #001f5b; }
-body.light .side-tag { background: rgba(0, 68, 204, 0.1); color: #0033aa; }
-body.light .side-info h3 { color: rgba(0, 0, 0, 0.4); }
-body.light .school-name { color: rgba(0, 0, 0, 0.6); }
-body.light .chat-area { background: rgba(255, 255, 255, 0.8); }
-body.light .chat-header { background: rgba(255, 255, 255, 0.95); border-bottom-color: rgba(0, 68, 204, 0.2); }
+body.light .side-tag { background: rgba(0,68,204,0.1); color: #0033aa; }
+body.light .side-info h3 { color: rgba(0,0,0,0.4); }
+body.light .school-name { color: rgba(0,0,0,0.6); }
+body.light .chat-area { background: rgba(255,255,255,0.8); }
+body.light .chat-header { background: rgba(255,255,255,0.95); border-bottom-color: rgba(0,68,204,0.2); }
 body.light .chat-header-left h2 { color: #001f5b; }
-body.light .chat-header-left p { color: rgba(0, 0, 0, 0.5); }
-body.light .bot-message .message-content { background: white; color: #1a1a2e; border-color: rgba(0, 68, 204, 0.2); }
-body.light .chat-input-area { background: rgba(255, 255, 255, 0.95); border-top-color: rgba(0, 68, 204, 0.2); }
-body.light .chat-input-area input { background: white; border-color: rgba(0, 68, 204, 0.3); color: #1a1a2e; }
-body.light .chat-input-area input::placeholder { color: rgba(0, 0, 0, 0.3); }
+body.light .chat-header-left p { color: rgba(0,0,0,0.5); }
+body.light .bot-message .message-content { background: white; color: #1a1a2e; border-color: rgba(0,68,204,0.2); }
+body.light .chat-input-area { background: rgba(255,255,255,0.95); border-top-color: rgba(0,68,204,0.2); }
+body.light .chat-input-area input { background: white; border-color: rgba(0,68,204,0.3); color: #1a1a2e; }
+body.light .chat-input-area input::placeholder { color: rgba(0,0,0,0.3); }
 body.light .suggestion-btn { background: white; color: #0044cc; border-color: #0044cc; }
-body.light .header-btn { background: rgba(0, 68, 204, 0.1); border-color: rgba(0, 68, 204, 0.3); color: #001f5b; }
+body.light .header-btn { background: rgba(0,68,204,0.1); border-color: rgba(0,68,204,0.3); color: #001f5b; }
 
 /* ================================================
    RESPONSIVE CELULAR
@@ -765,13 +639,8 @@ body.light .header-btn { background: rgba(0, 68, 204, 0.1); border-color: rgba(0
         height: 100dvh;
     }
 
-    .message { max-width: 90%; }
-
+    .message { max-width: 85%; }
     .landing-title { font-size: 2.8rem; }
-
     .chat-box { padding: 15px; }
-
     .chat-input-area { padding: 12px 15px; }
-
-    .historial-inner { width: 85%; }
 }
