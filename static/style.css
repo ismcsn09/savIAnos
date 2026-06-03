@@ -650,135 +650,30 @@ body::before {
 ================================================ */
 @media (max-width: 768px) {
     .side-panel {
-        display: none;
-        /* Ocultamos el panel lateral en celular */
+        display: none !important;
+        width: 0 !important;
+        min-width: 0 !important;
     }
 
-    .chat-area {
+    html, body {
         width: 100%;
-    }
-
-    .message {
-        max-width: 90%;
-    }
-
-    .landing-title {
-        font-size: 3rem;
-    }
-
-    .chat-box {
-        padding: 15px;
-    }
-
-    .chat-input-area {
-        padding: 15px;
-    }
-}
-/* ================================================
-   MODO CLARO (cuando se activa el toggle)
-================================================ */
-body.light {
-    background: #e8eeff;
-}
-
-body.light .side-panel {
-    background: rgba(255, 255, 255, 0.9);
-    border-right-color: rgba(0, 68, 204, 0.2);
-}
-
-body.light .side-title {
-    color: #001f5b;
-}
-
-body.light .side-subtitle {
-    color: rgba(0, 0, 0, 0.5);
-}
-
-body.light .side-status {
-    background: rgba(0, 68, 204, 0.1);
-}
-
-body.light .status-text {
-    color: #001f5b;
-}
-
-body.light .side-tag {
-    background: rgba(0, 68, 204, 0.1);
-    color: #0033aa;
-}
-
-body.light .side-info h3 {
-    color: rgba(0, 0, 0, 0.4);
-}
-
-body.light .school-name {
-    color: rgba(0, 0, 0, 0.6);
-}
-
-body.light .chat-area {
-    background: rgba(255, 255, 255, 0.8);
-}
-
-body.light .chat-header {
-    background: rgba(255, 255, 255, 0.95);
-    border-bottom-color: rgba(0, 68, 204, 0.2);
-}
-
-body.light .chat-header-left h2 {
-    color: #001f5b;
-}
-
-body.light .chat-header-left p {
-    color: rgba(0, 0, 0, 0.5);
-}
-
-body.light .chat-box {
-    background: transparent;
-}
-
-body.light .bot-message .message-content {
-    background: white;
-    color: #1a1a2e;
-    border-color: rgba(0, 68, 204, 0.2);
-}
-
-body.light .chat-input-area {
-    background: rgba(255, 255, 255, 0.95);
-    border-top-color: rgba(0, 68, 204, 0.2);
-}
-
-body.light .chat-input-area input {
-    background: white;
-    border-color: rgba(0, 68, 204, 0.3);
-    color: #1a1a2e;
-}
-
-body.light .chat-input-area input::placeholder {
-    color: rgba(0, 0, 0, 0.3);
-}
-
-body.light .suggestion-btn {
-    background: white;
-    color: #0044cc;
-    border-color: #0044cc;
-}
-
-/* ================================================
-   RESPONSIVE MEJORADO PARA CELULAR
-================================================ */
-@media (max-width: 768px) {
-    .side-panel {
-        display: none;
+        height: 100%;
+        overflow: hidden;
     }
 
     .main-layout {
-        height: 100dvh;
-        /* dvh se adapta mejor en celular que vh */
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
     }
 
     .chat-area {
         width: 100%;
-        height: 100dvh;
+        height: 100%;
         display: flex;
         flex-direction: column;
     }
@@ -791,16 +686,9 @@ body.light .suggestion-btn {
 
     .chat-input-area {
         padding: 12px 15px;
-        position: sticky;
-        bottom: 0;
-        /* Fija el input al fondo de la pantalla */
+        flex-shrink: 0;
     }
 
-    .message {
-        max-width: 90%;
-    }
-
-    .landing-title {
-        font-size: 3rem;
-    }
+    .message { max-width: 85%; }
+    .landing-title { font-size: 2.8rem; }
 }
