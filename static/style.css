@@ -847,10 +847,6 @@ body.light .suggestion-btn {
     to { transform: translateX(0); }
 }
 
-.historial-panel.active {
-    display: flex;
-}
-
 .historial-header {
     display: flex;
     justify-content: space-between;
