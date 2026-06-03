@@ -95,13 +95,19 @@
     <!-- ÁREA DEL CHAT -->
     <div class="chat-area">
 
-        <!-- Header -->
-        <div class="chat-header-right">
-    <button class="header-btn" onclick="toggleHistorial()" title="Historial">📋</button>
-    <button class="header-btn" onclick="limpiarChat()" title="Limpiar conversación">🗑️</button>
-    <button class="header-btn" onclick="toggleInfo()" title="Sobre savIAnos">ℹ️</button>
-    <button class="header-btn theme-btn" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
-<!-- Panel de historial -->
+    <!-- Header -->
+        <div class="chat-header">
+            <div class="chat-header-left">
+                <h2>savIAnos 🤖</h2>
+                <p>Pregúntame sobre IA y tecnología en Ecuador</p>
+            </div>
+            <div class="chat-header-right">
+                <button class="header-btn" onclick="toggleHistorial()" title="Historial">📋</button>
+                <button class="header-btn" onclick="limpiarChat()" title="Limpiar conversación">🗑️</button>
+                <button class="header-btn" onclick="toggleInfo()" title="Sobre savIAnos">ℹ️</button>
+                <button class="header-btn theme-btn" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
+            </div>
+        </div>
 <div class="historial-panel" id="historial-panel">
     <div class="historial-header">
         <h3>💬 Conversaciones</h3>
