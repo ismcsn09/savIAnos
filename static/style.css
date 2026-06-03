@@ -204,6 +204,9 @@ body::before {
     flex-direction: column;
     background: rgba(0, 10, 35, 0.6);
     backdrop-filter: blur(10px);
+    min-width: 0;
+    /* min-width: 0 evita que el contenido se desborde */
+    overflow: hidden;
 }
 
 /* Header del chat */
