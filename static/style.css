@@ -18,7 +18,10 @@ body {
     margin: 0;
     padding: 0;
     overflow: hidden;
+    width: 100vw;
+    height: 100vh;
 }
+
 
 body::before {
     content: '';
@@ -47,7 +50,9 @@ body::before {
     display: flex;
     width: 100vw;
     height: 100vh;
-    position: relative;
+    position: fixed;
+    top: 0;
+    left: 0;
     z-index: 1;
     overflow: hidden;
 }
@@ -650,4 +655,13 @@ body.light .header-btn { background: rgba(0,68,204,0.1); border-color: rgba(0,68
     .landing-title { font-size: 2.8rem; }
     .chat-box { padding: 15px; }
     .chat-input-area { padding: 12px 15px; }
+
+    .chat-input-area {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px 15px;
+    z-index: 10;
+}
 }
