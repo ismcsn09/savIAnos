@@ -102,15 +102,13 @@
                 <p>Pregúntame sobre IA y tecnología en Ecuador</p>
             </div>
             <div class="chat-header-right">
-                <button class="header-btn" onclick="toggleHistorial()" title="Historial">📋</button>
+               
                 <button class="header-btn" onclick="limpiarChat()" title="Limpiar conversación">🗑️</button>
                 <button class="header-btn" onclick="toggleInfo()" title="Sobre savIAnos">ℹ️</button>
                 <button class="header-btn theme-btn" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
             </div>
         </div>
-<div class="historial-panel" id="historial-panel">
-    <div class="historial-inner">
-        <div class="historial-header">
+
             <h3>💬 Conversaciones</h3>
             <button class="historial-close" onclick="toggleHistorial()">✕</button>
         </div>
@@ -196,252 +194,42 @@
 </div>
 
 <script>
-    
-    // ================================================
-// VARIABLES GLOBALES
-// ================================================
 let conversationHistory = [];
-// Historial de la conversación actual
 
-let conversaciones = JSON.parse(localStorage.getItem('savianos_conversaciones') || '[]');
-// Cargamos las conversaciones guardadas del localStorage
-// Si no hay ninguna, usamos un array vacío
-
-let conversacionActualId = null;
-// ID de la conversación que estamos viendo ahora
-
-// ================================================
-// INICIALIZACIÓN
-// ================================================
-cargarHistorialPanel();
-// Cargamos el panel de historial al abrir la página
-
-// ================================================
-// ENVIAR MENSAJE
-// ================================================
 async function sendMessage() {
     const input = document.getElementById("user-input");
     const message = input.value.trim();
     if (!message) return;
-
-    // Si es el primer mensaje, creamos una nueva conversación
-    if (conversationHistory.length === 0) {
-        conversacionActualId = Date.now();
-        // Usamos la fecha como ID único
-    }
-
     appendMessage(message, "user");
     input.value = "";
-
-    conversationHistory.push({
-        role: "user",
-        content: message
-    });
-
+    conversationHistory.push({ role: "user", content: message });
     const typingIndicator = appendMessage("✦ Escribiendo...", "bot", true);
-
     try {
         const response = await fetch("/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                message: message,
-                history: conversationHistory
-            })
+            body: JSON.stringify({ message: message, history: conversationHistory })
         });
-
         const data = await response.json();
         typingIndicator.remove();
         appendMessage(data.reply, "bot");
-
-        conversationHistory.push({
-            role: "assistant",
-            content: data.reply
-        });
-
-        // Guardamos la conversación actualizada
-        guardarConversacionActual(message);
-
+        conversationHistory.push({ role: "assistant", content: data.reply });
     } catch (error) {
         typingIndicator.remove();
         appendMessage("Hubo un error. Intenta de nuevo.", "bot");
     }
 }
 
-// ================================================
-// GUARDAR CONVERSACIÓN
-// ================================================
-function guardarConversacionActual(primerMensaje) {
-    
-    // Buscamos si ya existe esta conversación
-    const index = conversaciones.findIndex(c => c.id === conversacionActualId);
-    
-    const convData = {
-        id: conversacionActualId,
-        titulo: primerMensaje.substring(0, 40) + (primerMensaje.length > 40 ? '...' : ''),
-        // El título es el primer mensaje cortado a 40 caracteres
-        fecha: new Date().toLocaleString('es-EC'),
-        mensajes: conversationHistory
-    };
-
-    if (index === -1) {
-        // Es nueva, la agregamos al inicio
-        conversaciones.unshift(convData);
-    } else {
-        // Ya existe, la actualizamos
-        conversaciones[index] = convData;
-    }
-
-    // Guardamos en localStorage
-    localStorage.setItem('savianos_conversaciones', JSON.stringify(conversaciones));
-    
-    // Actualizamos el panel
-    cargarHistorialPanel();
-}
-
-// ================================================
-// CARGAR PANEL DE HISTORIAL
-// ================================================
-function cargarHistorialPanel() {
-    const lista = document.getElementById('historial-lista');
-    if (!lista) return;
-
-    if (conversaciones.length === 0) {
-        lista.innerHTML = '<p class="historial-vacio">No hay conversaciones anteriores</p>';
-        return;
-    }
-
-    lista.innerHTML = conversaciones.map(conv => `
-        <div class="historial-item ${conv.id === conversacionActualId ? 'active-conv' : ''}" 
-             onclick="cargarConversacion(${conv.id})">
-            <div class="historial-titulo">${conv.titulo}</div>
-            <div class="historial-fecha">${conv.fecha}</div>
-        </div>
-    `).join('');
-}
-
-// ================================================
-// CARGAR UNA CONVERSACIÓN ANTERIOR
-// ================================================
-function cargarConversacion(id) {
-    const conv = conversaciones.find(c => c.id === id);
-    if (!conv) return;
-
-    // Cargamos los mensajes
-    conversacionActualId = id;
-    conversationHistory = [...conv.mensajes];
-
-    // Limpiamos el chat y mostramos los mensajes
-    const chatBox = document.getElementById("chat-box");
-    chatBox.innerHTML = '';
-
-    conv.mensajes.forEach(msg => {
-        appendMessage(msg.content, msg.role === 'user' ? 'user' : 'bot');
-    });
-
-    // Cerramos el panel
-    toggleHistorial();
-    cargarHistorialPanel();
-}
-
-// ================================================
-// NUEVA CONVERSACIÓN
-// ================================================
-function nuevaConversacion() {
-    conversationHistory = [];
-    conversacionActualId = null;
-
-    const chatBox = document.getElementById("chat-box");
-    chatBox.innerHTML = `
-        <div class="message bot-message">
-            <div class="message-content">
-                ¡Hola! Soy <strong>savIAnos</strong> 👋, tu asistente sobre 
-                Inteligencia Artificial y tecnología en Ecuador. 
-                ¿Qué quieres aprender hoy?
-            </div>
-        </div>
-        <div class="suggestions">
-            <button class="suggestion-btn" onclick="askSuggestion('¿Qué es la inteligencia artificial?')">
-                🤖 ¿Qué es la IA?
-            </button>
-            <button class="suggestion-btn" onclick="askSuggestion('¿Cómo se usa la IA en Ecuador?')">
-                🇪🇨 IA en Ecuador
-            </button>
-            <button class="suggestion-btn" onclick="askSuggestion('¿Qué carreras hay en tecnología en Ecuador?')">
-                🎓 Carreras tech
-            </button>
-            <button class="suggestion-btn" onclick="askSuggestion('¿Por qué es importante aprender programación?')">
-                💻 ¿Por qué programar?
-            </button>
-        </div>
-    `;
-
-    toggleHistorial();
-    cargarHistorialPanel();
-}
-
-// ================================================
-// TOGGLE HISTORIAL
-// ================================================
-function toggleHistorial() {
-    document.getElementById('historial-panel').classList.toggle('active');
-}
-
-// ================================================
-// LIMPIAR CHAT
-// ================================================
-function limpiarChat() {
-    if (!confirm("¿Limpiar todas las conversaciones?")) return;
-
-    conversaciones = [];
-    conversationHistory = [];
-    conversacionActualId = null;
-    localStorage.removeItem('savianos_conversaciones');
-
-    const chatBox = document.getElementById("chat-box");
-    chatBox.innerHTML = `
-        <div class="message bot-message">
-            <div class="message-content">
-                ¡Hola! Soy <strong>savIAnos</strong> 👋, tu asistente sobre 
-                Inteligencia Artificial y tecnología en Ecuador. 
-                ¿Qué quieres aprender hoy?
-            </div>
-        </div>
-        <div class="suggestions">
-            <button class="suggestion-btn" onclick="askSuggestion('¿Qué es la inteligencia artificial?')">
-                🤖 ¿Qué es la IA?
-            </button>
-            <button class="suggestion-btn" onclick="askSuggestion('¿Cómo se usa la IA en Ecuador?')">
-                🇪🇨 IA en Ecuador
-            </button>
-            <button class="suggestion-btn" onclick="askSuggestion('¿Qué carreras hay en tecnología en Ecuador?')">
-                🎓 Carreras tech
-            </button>
-            <button class="suggestion-btn" onclick="askSuggestion('¿Por qué es importante aprender programación?')">
-                💻 ¿Por qué programar?
-            </button>
-        </div>
-    `;
-
-    cargarHistorialPanel();
-}
-
-// ================================================
-// FUNCIONES AUXILIARES
-// ================================================
 function appendMessage(text, sender, isTyping = false) {
     const chatBox = document.getElementById("chat-box");
     const messageDiv = document.createElement("div");
     messageDiv.className = `message ${sender}-message`;
-
     const contentDiv = document.createElement("div");
     contentDiv.className = "message-content";
     contentDiv.textContent = text;
-
     messageDiv.appendChild(contentDiv);
     chatBox.appendChild(messageDiv);
     chatBox.scrollTop = chatBox.scrollHeight;
-
     return messageDiv;
 }
 
@@ -451,6 +239,27 @@ function askSuggestion(question) {
     sendMessage();
     const suggestions = document.querySelector(".suggestions");
     if (suggestions) suggestions.style.display = "none";
+}
+
+function limpiarChat() {
+    if (!confirm("¿Limpiar la conversación?")) return;
+    conversationHistory = [];
+    const chatBox = document.getElementById("chat-box");
+    chatBox.innerHTML = `
+        <div class="message bot-message">
+            <div class="message-content">
+                ¡Hola! Soy <strong>savIAnos</strong> 👋, tu asistente sobre 
+                Inteligencia Artificial y tecnología en Ecuador. 
+                ¿Qué quieres aprender hoy?
+            </div>
+        </div>
+        <div class="suggestions">
+            <button class="suggestion-btn" onclick="askSuggestion('¿Qué es la inteligencia artificial?')">🤖 ¿Qué es la IA?</button>
+            <button class="suggestion-btn" onclick="askSuggestion('¿Cómo se usa la IA en Ecuador?')">🇪🇨 IA en Ecuador</button>
+            <button class="suggestion-btn" onclick="askSuggestion('¿Qué carreras hay en tecnología en Ecuador?')">🎓 Carreras tech</button>
+            <button class="suggestion-btn" onclick="askSuggestion('¿Por qué es importante aprender programación?')">💻 ¿Por qué programar?</button>
+        </div>
+    `;
 }
 
 function toggleTheme() {
