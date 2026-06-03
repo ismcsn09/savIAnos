@@ -15,11 +15,8 @@ html {
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: #020818;
-    min-height: 100vh;
-    width: 100%;
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
+    margin: 0;
+    padding: 0;
     overflow: hidden;
 }
 
@@ -54,7 +51,6 @@ body::before {
     z-index: 1;
     overflow: hidden;
 }
-
 /* ================================================
    PANEL IZQUIERDO
 ================================================ */
