@@ -629,9 +629,16 @@ body.light .header-btn { background: rgba(0,68,204,0.1); border-color: rgba(0,68
 @media (max-width: 768px) {
     .side-panel { display: none; }
 
+    body {
+        justify-content: flex-start;
+        align-items: flex-start;
+        overflow: hidden;
+    }
+
     .main-layout {
         height: 100dvh;
         overflow: hidden;
+        width: 100vw;
     }
 
     .chat-area {
