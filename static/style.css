@@ -640,21 +640,15 @@ body.light .header-btn { background: rgba(0,68,204,0.1); border-color: rgba(0,68
 }
 
     body {
-        justify-content: flex-start;
-        align-items: flex-start;
-        overflow: hidden;
-    }
-
-    .main-layout {
-        height: 100dvh;
-        overflow: hidden;
-        width: 100vw;
-    }
-
-    .chat-area {
-        width: 100%;
-        height: 100dvh;
-    }
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #020818;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    overflow: hidden;
+}
 
     .message { max-width: 85%; }
     .landing-title { font-size: 2.8rem; }
