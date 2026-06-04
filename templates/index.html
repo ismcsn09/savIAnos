@@ -159,11 +159,10 @@
         id="user-input"
         placeholder="Escribe o habla tu pregunta..."
     >
-    <button id="send-btn" onclick="sendMessage()">
-        Enviar ➤
-    </button>
+    <button id="img-btn" onclick="document.getElementById('img-input').click()" title="Enviar imagen">🖼️</button>
+    <input type="file" id="img-input" accept="image/*" style="display:none" onchange="enviarImagen(this)">
+    <button id="send-btn" onclick="sendMessage()">➤</button>
 </div>
-
     </div>
 
 </div>

@@ -737,4 +737,34 @@ body::before {
     height: 40px;
     font-size: 1rem;
 }
+#send-btn {
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 1.1rem;
+}
+
+#img-btn {
+    background: rgba(0, 68, 204, 0.2);
+    border: 1px solid rgba(0, 68, 204, 0.4);
+    color: white;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    box-shadow: none;
+}
+
+#img-btn:hover {
+    background: rgba(0, 68, 204, 0.5);
+    transform: scale(1.1);
+}
 }
