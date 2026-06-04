@@ -358,6 +358,7 @@ document
         if (e.key === "Enter")
             sendMessage();
 });
+
 // ================================================
 // VOZ - Web Speech API
 // ================================================
@@ -371,19 +372,14 @@ function toggleVoz() {
     }
 
     if (grabando) {
-        // Si está grabando, detener
         recognition.stop();
         return;
     }
 
-    // Crear el reconocimiento de voz
     recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     recognition.lang = 'es-EC';
-    // Español de Ecuador
     recognition.continuous = false;
-    // Graba una sola frase
     recognition.interimResults = false;
-    // Solo resultado final
 
     const micBtn = document.getElementById('mic-btn');
 
@@ -391,23 +387,18 @@ function toggleVoz() {
         grabando = true;
         micBtn.textContent = '⏹️';
         micBtn.classList.add('grabando');
-        // Cambia el botón a rojo mientras graba
     };
 
     recognition.onresult = function(event) {
         const texto = event.results[0][0].transcript;
-        // Obtenemos el texto reconocido
         document.getElementById('user-input').value = texto;
-        // Lo ponemos en el input
         sendMessage();
-        // Lo enviamos automáticamente
     };
 
     recognition.onend = function() {
         grabando = false;
         micBtn.textContent = '🎤';
         micBtn.classList.remove('grabando');
-        // Vuelve al estado normal
     };
 
     recognition.onerror = function(event) {
@@ -420,7 +411,12 @@ function toggleVoz() {
     };
 
     recognition.start();
-    async function enviarImagen(input) {
+}
+
+// ================================================
+// IMAGEN
+// ================================================
+async function enviarImagen(input) {
     const file = input.files[0];
     if (!file) return;
 
@@ -457,9 +453,9 @@ function toggleVoz() {
 
     reader.readAsDataURL(file);
 }
-}
-
 </script>
+
+
 
 </body>
 </html>
