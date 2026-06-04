@@ -425,7 +425,20 @@ async function enviarImagen(input) {
         const base64 = e.target.result.split(',')[1];
         const mediaType = file.type;
 
-        appendMessage(`🖼️ Imagen enviada: ${file.name}`, "user");
+        const chatBox = document.getElementById("chat-box");
+const messageDiv = document.createElement("div");
+messageDiv.className = "message user-message";
+const contentDiv = document.createElement("div");
+contentDiv.className = "message-content";
+const img = document.createElement("img");
+img.src = e.target.result;
+img.style.maxWidth = "200px";
+img.style.borderRadius = "10px";
+img.style.display = "block";
+contentDiv.appendChild(img);
+messageDiv.appendChild(contentDiv);
+chatBox.appendChild(messageDiv);
+chatBox.scrollTop = chatBox.scrollHeight;
 
         const typingIndicator = appendMessage("✦ Analizando imagen...", "bot", true);
 
