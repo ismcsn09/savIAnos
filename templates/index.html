@@ -152,17 +152,17 @@
         </div>
 
         <!-- Input -->
-        <div class="chat-input-area">
-            <input
-                type="text"
-                id="user-input"
-                placeholder="Escribe tu pregunta sobre IA..."
-            >
-
-            <button id="send-btn" onclick="sendMessage()">
-                Enviar ➤
-            </button>
-        </div>
+<div class="chat-input-area">
+    <button id="mic-btn" onclick="toggleVoz()" title="Hablar">🎤</button>
+    <input
+        type="text"
+        id="user-input"
+        placeholder="Escribe o habla tu pregunta..."
+    >
+    <button id="send-btn" onclick="sendMessage()">
+        Enviar ➤
+    </button>
+</div>
 
     </div>
 
@@ -359,6 +359,69 @@ document
         if (e.key === "Enter")
             sendMessage();
 });
+// ================================================
+// VOZ - Web Speech API
+// ================================================
+let recognition = null;
+let grabando = false;
+
+function toggleVoz() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert('Tu navegador no soporta reconocimiento de voz. Usa Chrome.');
+        return;
+    }
+
+    if (grabando) {
+        // Si está grabando, detener
+        recognition.stop();
+        return;
+    }
+
+    // Crear el reconocimiento de voz
+    recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'es-EC';
+    // Español de Ecuador
+    recognition.continuous = false;
+    // Graba una sola frase
+    recognition.interimResults = false;
+    // Solo resultado final
+
+    const micBtn = document.getElementById('mic-btn');
+
+    recognition.onstart = function() {
+        grabando = true;
+        micBtn.textContent = '⏹️';
+        micBtn.classList.add('grabando');
+        // Cambia el botón a rojo mientras graba
+    };
+
+    recognition.onresult = function(event) {
+        const texto = event.results[0][0].transcript;
+        // Obtenemos el texto reconocido
+        document.getElementById('user-input').value = texto;
+        // Lo ponemos en el input
+        sendMessage();
+        // Lo enviamos automáticamente
+    };
+
+    recognition.onend = function() {
+        grabando = false;
+        micBtn.textContent = '🎤';
+        micBtn.classList.remove('grabando');
+        // Vuelve al estado normal
+    };
+
+    recognition.onerror = function(event) {
+        grabando = false;
+        micBtn.textContent = '🎤';
+        micBtn.classList.remove('grabando');
+        if (event.error === 'not-allowed') {
+            alert('Necesitas permitir el acceso al micrófono.');
+        }
+    };
+
+    recognition.start();
+}
 </script>
 
 </body>
