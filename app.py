@@ -254,6 +254,44 @@ def chat():
     except Exception as e:
         print("ERROR:", str(e))
         return jsonify({"reply": f"Error: {str(e)}"})
+    
+
+@app.route("/imagen", methods=["POST"])
+def imagen():
+    try:
+        data = request.get_json()
+        image_base64 = data.get("image", "")
+        media_type = data.get("media_type", "image/jpeg")
+
+        response = client.chat.completions.create(
+            model="meta-llama/llama-4-scout-17b-16e-instruct",
+            max_tokens=1024,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:{media_type};base64,{image_base64}"
+                            }
+                        },
+                        {
+                            "type": "text",
+                            "text": "Analiza esta imagen y descríbela en el contexto de tecnología e IA."
+                        }
+                    ]
+                }
+            ]
+        )
+
+        bot_reply = response.choices[0].message.content
+        return jsonify({"reply": bot_reply})
+
+    except Exception as e:
+        print("ERROR imagen:", str(e))
+        return jsonify({"reply": f"Error: {str(e)}"})
 
 @app.route("/estadisticas")
 def estadisticas():

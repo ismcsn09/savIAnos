@@ -420,7 +420,45 @@ function toggleVoz() {
     };
 
     recognition.start();
+    async function enviarImagen(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        const base64 = e.target.result.split(',')[1];
+        const mediaType = file.type;
+
+        appendMessage(`🖼️ Imagen enviada: ${file.name}`, "user");
+
+        const typingIndicator = appendMessage("✦ Analizando imagen...", "bot", true);
+
+        try {
+            const response = await fetch("/imagen", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    image: base64,
+                    media_type: mediaType
+                })
+            });
+
+            const data = await response.json();
+            typingIndicator.remove();
+            appendMessage(data.reply, "bot");
+
+        } catch (error) {
+            typingIndicator.remove();
+            appendMessage("Error al analizar la imagen. Intenta de nuevo.", "bot");
+        }
+
+        input.value = "";
+    };
+
+    reader.readAsDataURL(file);
 }
+}
+
 </script>
 
 </body>
