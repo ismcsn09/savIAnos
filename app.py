@@ -279,7 +279,7 @@ def imagen():
                         },
                         {
                             "type": "text",
-                            "text": "Analiza esta imagen y descríbela en el contexto de tecnología e IA."
+                            "text": "Analiza y describe esta imagen. Si tiene relación con tecnología o IA, explícalo. Si no, descríbela normalmente y de forma útil."
                         }
                     ]
                 }
