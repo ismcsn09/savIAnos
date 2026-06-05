@@ -743,4 +743,71 @@ body::before {
 
     .message { max-width: 85%; }
     .landing-title { font-size: 2.8rem; }
+
+    /* ================================================
+   MODO CLARO
+================================================ */
+body.light {
+    background: #f0f4ff;
+}
+
+body.light .main-layout,
+body.light .chat-area {
+    background: rgba(240, 244, 255, 0.95);
+}
+
+body.light .chat-header {
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom: 1px solid rgba(0, 68, 204, 0.2);
+}
+
+body.light .chat-header-left h2 {
+    color: #001a66;
+}
+
+body.light .chat-header-left p {
+    color: rgba(0, 26, 102, 0.6);
+}
+
+body.light .chat-box {
+    background: transparent;
+}
+
+body.light .bot-message .message-content {
+    background: rgba(255, 255, 255, 0.9);
+    color: #001a66;
+    border: 1px solid rgba(0, 68, 204, 0.2);
+}
+
+body.light .chat-input-area {
+    background: rgba(255, 255, 255, 0.95);
+    border-top: 1px solid rgba(0, 68, 204, 0.2);
+}
+
+body.light .chat-input-area input {
+    background: rgba(240, 244, 255, 0.8);
+    color: #001a66;
+    border: 1px solid rgba(0, 68, 204, 0.3);
+}
+
+body.light .chat-input-area input::placeholder {
+    color: rgba(0, 26, 102, 0.4);
+}
+
+body.light .side-panel {
+    background: rgba(255, 255, 255, 0.95);
+    border-right: 1px solid rgba(0, 68, 204, 0.2);
+}
+
+body.light .side-title,
+body.light .status-text,
+body.light .school-name {
+    color: #001a66;
+}
+
+body.light .suggestion-btn {
+    background: rgba(255, 255, 255, 0.8);
+    color: #0044cc;
+    border: 1px solid rgba(0, 68, 204, 0.3);
+}
 }
