@@ -8,6 +8,10 @@ import os
 import sqlite3
 # sqlite3 es la base de datos incluida en Python
 # guarda los datos en un archivo .db
+import base64
+# base64 para convertir imágenes a texto y enviarlas
+import requests
+# requests para hacer peticiones HTTP a APIs externas
 from datetime import datetime
 # datetime nos permite guardar la fecha y hora de cada mensaje
 
@@ -329,6 +333,21 @@ def imagen():
     except Exception as e:
         print("ERROR imagen:", str(e))
         return jsonify({"reply": f"Error: {str(e)}"})
+    
+@app.route("/generar-imagen", methods=["POST"])
+def generar_imagen():
+    # Recibe un prompt y genera una imagen con Pollinations
+    try:
+        data = request.get_json()
+        prompt = data.get("prompt", "")
+        url = f"https://image.pollinations.ai/prompt/{requests.utils.quote(prompt)}"
+        response = requests.get(url, timeout=30)
+        # Convertimos la imagen a base64 para enviarla al frontend
+        img_base64 = base64.b64encode(response.content).decode('utf-8')
+        return jsonify({"image": img_base64})
+    except Exception as e:
+        print("ERROR generar imagen:", str(e))
+        return jsonify({"error": str(e)})
 
 @app.route("/estadisticas")
 def estadisticas():
