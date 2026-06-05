@@ -743,11 +743,22 @@ body::before {
 
     .message { max-width: 85%; }
     .landing-title { font-size: 2.8rem; }
+}
 
-    /* ================================================
+/* ================================================
    MODO CLARO
 ================================================ */
 body.light {
+    background: #e8eeff;
+}
+
+body.light::before {
+    background: 
+        radial-gradient(ellipse at 20% 50%, rgba(0, 68, 204, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(0, 34, 102, 0.05) 0%, transparent 50%);
+}
+
+body.light .landing-page {
     background: #f0f4ff;
 }
 
@@ -809,5 +820,4 @@ body.light .suggestion-btn {
     background: rgba(255, 255, 255, 0.8);
     color: #0044cc;
     border: 1px solid rgba(0, 68, 204, 0.3);
-}
 }
