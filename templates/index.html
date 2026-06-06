@@ -239,38 +239,11 @@ async function sendMessage() {
 
         typingIndicator.remove();
 
-        if (data.reply.startsWith("GENERAR_IMAGEN:")) {
-    const prompt = data.reply.replace("GENERAR_IMAGEN:", "").trim();
-
-    const chatBox = document.getElementById("chat-box");
-    const messageDiv = document.createElement("div");
-    messageDiv.className = "message bot-message";
-    const contentDiv = document.createElement("div");
-    contentDiv.className = "message-content";
-    contentDiv.innerHTML = `🎨 Generando imagen... puede tardar unos segundos`;
-    messageDiv.appendChild(contentDiv);
-    chatBox.appendChild(messageDiv);
-    chatBox.scrollTop = chatBox.scrollHeight;
-
-    fetch("/generar-imagen", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: prompt })
-    }).then(r => r.json()).then(imgData => {
-        if (imgData.image) {
-            contentDiv.innerHTML = `🎨 Imagen generada:<br><img src="data:image/jpeg;base64,${imgData.image}" style="max-width:250px; border-radius:10px; margin-top:8px; display:block;">`;
-        } else {
-            contentDiv.innerHTML = `❌ No se pudo generar la imagen.`;
-        }
-        chatBox.scrollTop = chatBox.scrollHeight;
-    });
-} else {
-    appendMessage(data.reply, "bot");
-    conversationHistory.push({
-        role: "assistant",
-        content: data.reply
-    });
-}
+       appendMessage(data.reply, "bot");
+conversationHistory.push({
+    role: "assistant",
+    content: data.reply
+});
     } catch (error) {
         typingIndicator.remove();
         appendMessage(
