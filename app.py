@@ -335,21 +335,22 @@ def imagen():
         return jsonify({"reply": f"Error: {str(e)}"})
     
     @app.route("/generar-imagen", methods=["POST"])
+
     def generar_imagen():
-    # Genera una imagen usando Hugging Face
-     try:
-        data = request.get_json()
-        prompt = data.get("prompt", "")
-        hf_token = os.getenv("HF_TOKEN")
-        api_url = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0"
-        headers = {"Authorization": f"Bearer {hf_token}"}
-        payload = {"inputs": prompt}
-        response = requests.post(api_url, headers=headers, json=payload, timeout=60)
-        img_base64 = base64.b64encode(response.content).decode('utf-8')
-        return jsonify({"image": img_base64})
-     except Exception as e:
-        print("ERROR generar imagen:", str(e))
-        return jsonify({"error": str(e)})
+        # Genera una imagen usando Hugging Face
+        try:
+            data = request.get_json()
+            prompt = data.get("prompt", "")
+            hf_token = os.getenv("HF_TOKEN")
+            api_url = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0"
+            headers = {"Authorization": f"Bearer {hf_token}"}
+            payload = {"inputs": prompt}
+            response = requests.post(api_url, headers=headers, json=payload, timeout=60)
+            img_base64 = base64.b64encode(response.content).decode('utf-8')
+            return jsonify({"image": img_base64})
+        except Exception as e:
+            print("ERROR generar imagen:", str(e))
+            return jsonify({"error": str(e)})
     
 @app.route("/estadisticas")
 def estadisticas():
