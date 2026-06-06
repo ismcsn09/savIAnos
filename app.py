@@ -12,6 +12,8 @@ import base64
 # base64 para convertir imágenes a texto y enviarlas
 from datetime import datetime
 # datetime nos permite guardar la fecha y hora de cada mensaje
+import base64
+import requests
 
 # ============================================================
 # INICIALIZACIÓN
@@ -25,8 +27,11 @@ client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 # ============================================================
 
 def init_db():
+    # Crea las tablas si no existen
     conn = sqlite3.connect('savianos.db')
     cursor = conn.cursor()
+    
+    # Tabla de mensajes
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS mensajes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -34,6 +39,8 @@ def init_db():
             fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+    
+    # Tabla de sesiones (usuarios únicos)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS sesiones (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,10 +48,12 @@ def init_db():
             fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+    
     conn.commit()
     conn.close()
 
 def guardar_mensaje(pregunta):
+    # Guarda cada pregunta en la base de datos
     conn = sqlite3.connect('savianos.db')
     cursor = conn.cursor()
     cursor.execute('INSERT INTO mensajes (pregunta) VALUES (?)', (pregunta,))
@@ -52,6 +61,7 @@ def guardar_mensaje(pregunta):
     conn.close()
 
 def guardar_sesion(ip):
+    # Guarda la IP del usuario si es nueva hoy
     conn = sqlite3.connect('savianos.db')
     cursor = conn.cursor()
     cursor.execute('''
@@ -65,24 +75,37 @@ def guardar_sesion(ip):
     conn.close()
 
 def obtener_estadisticas():
+    # Obtiene todas las estadísticas
     conn = sqlite3.connect('savianos.db')
     cursor = conn.cursor()
+    
+    # Total de mensajes
     cursor.execute('SELECT COUNT(*) FROM mensajes')
     total_mensajes = cursor.fetchone()[0]
+    
+    # Usuarios únicos hoy
     cursor.execute('''
         SELECT COUNT(DISTINCT ip) FROM sesiones 
         WHERE DATE(fecha) = DATE('now')
     ''')
     usuarios_hoy = cursor.fetchone()[0]
+    
+    # Total de usuarios únicos
     cursor.execute('SELECT COUNT(DISTINCT ip) FROM sesiones')
     total_usuarios = cursor.fetchone()[0]
+    
+    # Mensajes de hoy
     cursor.execute('''
         SELECT COUNT(*) FROM mensajes 
         WHERE DATE(fecha) = DATE('now')
     ''')
     mensajes_hoy = cursor.fetchone()[0]
+    
+    # Palabras más frecuentes en las preguntas
     cursor.execute('SELECT pregunta FROM mensajes ORDER BY fecha DESC LIMIT 100')
     preguntas = [row[0].lower() for row in cursor.fetchall()]
+    
+    # Contamos temas frecuentes
     temas = {
         'IA / Inteligencia Artificial': 0,
         'Ecuador / Tecnología': 0,
@@ -91,6 +114,7 @@ def obtener_estadisticas():
         'Machine Learning': 0,
         'Otros': 0
     }
+    
     for pregunta in preguntas:
         if any(w in pregunta for w in ['ia', 'inteligencia', 'artificial', 'robot']):
             temas['IA / Inteligencia Artificial'] += 1
@@ -104,7 +128,9 @@ def obtener_estadisticas():
             temas['Machine Learning'] += 1
         else:
             temas['Otros'] += 1
+    
     conn.close()
+    
     return {
         'total_mensajes': total_mensajes,
         'usuarios_hoy': usuarios_hoy,
@@ -216,6 +242,15 @@ Recurso gratuito: [nombre de plataforma]
 Usa siempre recursos 100% gratuitos: freeCodeCamp, Coursera (auditoría),
 YouTube, Kaggle, Google Colab, GitHub Student Pack.
 
+=== GENERACIÓN DE IMÁGENES ===
+Cuando el usuario pida generar, crear o dibujar una imagen, responde ÚNICAMENTE
+con este formato exacto y nada más:
+GENERAR_IMAGEN: [descripción en inglés detallada de la imagen]
+
+No agregues texto antes ni después, solo la línea GENERAR_IMAGEN.
+
+
+
 === LO QUE NO DEBES HACER ===
 - No inventes datos o estadísticas que no sean reales
 - No hables de temas que no sean tecnología e IA
@@ -229,6 +264,7 @@ YouTube, Kaggle, Google Colab, GitHub Student Pack.
 @app.route("/")
 def home():
     init_db()
+    # Inicializa la base de datos si no existe
     ip = request.remote_addr
     guardar_sesion(ip)
     return render_template("index.html")
@@ -239,7 +275,10 @@ def chat():
         data = request.get_json()
         user_message = data.get("message", "")
         conversation_history = data.get("history", [])
+
+        # Guardamos la pregunta en la base de datos
         guardar_mensaje(user_message)
+
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             max_tokens=1024,
@@ -249,11 +288,14 @@ def chat():
                 {"role": "user", "content": user_message}
             ]
         )
+
         bot_reply = response.choices[0].message.content
         return jsonify({"reply": bot_reply})
+
     except Exception as e:
         print("ERROR:", str(e))
         return jsonify({"reply": f"Error: {str(e)}"})
+    
 
 @app.route("/imagen", methods=["POST"])
 def imagen():
@@ -261,6 +303,7 @@ def imagen():
         data = request.get_json()
         image_base64 = data.get("image", "")
         media_type = data.get("media_type", "image/jpeg")
+
         response = client.chat.completions.create(
             model="meta-llama/llama-4-scout-17b-16e-instruct",
             max_tokens=1024,
@@ -283,19 +326,40 @@ def imagen():
                 }
             ]
         )
+
         bot_reply = response.choices[0].message.content
         return jsonify({"reply": bot_reply})
+
     except Exception as e:
         print("ERROR imagen:", str(e))
         return jsonify({"reply": f"Error: {str(e)}"})
-
+    
+    @app.route("/generar-imagen", methods=["POST"])
+    def generar_imagen():
+    # Genera una imagen usando Hugging Face
+     try:
+        data = request.get_json()
+        prompt = data.get("prompt", "")
+        hf_token = os.getenv("HF_TOKEN")
+        api_url = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0"
+        headers = {"Authorization": f"Bearer {hf_token}"}
+        payload = {"inputs": prompt}
+        response = requests.post(api_url, headers=headers, json=payload, timeout=60)
+        img_base64 = base64.b64encode(response.content).decode('utf-8')
+        return jsonify({"image": img_base64})
+     except Exception as e:
+        print("ERROR generar imagen:", str(e))
+        return jsonify({"error": str(e)})
+    
 @app.route("/estadisticas")
 def estadisticas():
+    # Ruta que devuelve las estadísticas en JSON
     stats = obtener_estadisticas()
     return jsonify(stats)
 
 @app.route("/panel")
 def panel():
+    # Página del panel de estadísticas
     return render_template("panel.html")
 
 # ============================================================
@@ -304,6 +368,7 @@ def panel():
 
 if __name__ == "__main__":
     init_db()
+    # Inicializamos la base de datos al arrancar
     import webbrowser
     import threading
     threading.Timer(1.5, lambda: webbrowser.open("http://127.0.0.1:5000")).start()
