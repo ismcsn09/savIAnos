@@ -242,15 +242,6 @@ Recurso gratuito: [nombre de plataforma]
 Usa siempre recursos 100% gratuitos: freeCodeCamp, Coursera (auditoría),
 YouTube, Kaggle, Google Colab, GitHub Student Pack.
 
-=== GENERACIÓN DE IMÁGENES ===
-Cuando el usuario pida generar, crear o dibujar una imagen, responde ÚNICAMENTE
-con este formato exacto y nada más:
-GENERAR_IMAGEN: [descripción en inglés detallada de la imagen]
-
-No agregues texto antes ni después, solo la línea GENERAR_IMAGEN.
-
-
-
 === LO QUE NO DEBES HACER ===
 - No inventes datos o estadísticas que no sean reales
 - No hables de temas que no sean tecnología e IA
@@ -333,22 +324,7 @@ def imagen():
     except Exception as e:
         print("ERROR imagen:", str(e))
         return jsonify({"reply": f"Error: {str(e)}"})
-    
-@app.route("/generar-imagen", methods=["POST"])
-def generar_imagen():
-        try:
-            data = request.get_json()
-            prompt = data.get("prompt", "")
-            hf_token = os.getenv("HF_TOKEN")
-            api_url = "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-dev"
-            headers = {"Authorization": f"Bearer {hf_token}"}
-            payload = {"inputs": prompt}
-            response = requests.post(api_url, headers=headers, json=payload, timeout=60)
-            img_base64 = base64.b64encode(response.content).decode('utf-8')
-            return jsonify({"image": img_base64})
-        except Exception as e:
-            print("ERROR generar imagen:", str(e))
-            return jsonify({"error": str(e)})
+
     
 @app.route("/estadisticas")
 def estadisticas():
