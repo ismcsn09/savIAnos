@@ -340,7 +340,7 @@ def generar_imagen():
             data = request.get_json()
             prompt = data.get("prompt", "")
             hf_token = os.getenv("HF_TOKEN")
-            api_url = "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-2-1"
+            api_url = "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-dev"
             headers = {"Authorization": f"Bearer {hf_token}"}
             payload = {"inputs": prompt}
             response = requests.post(api_url, headers=headers, json=payload, timeout=60)
