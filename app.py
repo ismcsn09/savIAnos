@@ -12,8 +12,8 @@ import base64
 # base64 para convertir imágenes a texto y enviarlas
 from datetime import datetime
 # datetime nos permite guardar la fecha y hora de cada mensaje
-import base64
-import requests
+from tavily import TavilyClient
+# TavilyClient para búsquedas web en tiempo real
 
 # ============================================================
 # INICIALIZACIÓN
@@ -139,6 +139,19 @@ def obtener_estadisticas():
         'temas': temas
     }
 
+def buscar_web(query):
+    # Busca información actualizada en internet usando Tavily
+    try:
+        tavily = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
+        results = tavily.search(query=query, max_results=3)
+        contexto = ""
+        for r in results.get("results", []):
+            contexto += f"- {r['title']}: {r['content'][:200]}\n"
+        return contexto
+    except Exception as e:
+        print("ERROR búsqueda:", str(e))
+        return ""
+
 # ============================================================
 # PERSONALIDAD DEL BOT
 # ============================================================
@@ -214,6 +227,11 @@ Educar a jóvenes ecuatorianos sobre:
 - Máximo 3 párrafos por respuesta para no abrumar al usuario
 - Responde siempre en español
 
+=== BÚSQUEDA WEB ===
+Cuando tengas información actualizada de internet disponible en el contexto,
+úsala para enriquecer tu respuesta con datos reales y recientes.
+Menciona que la información es reciente y de fuentes de internet.
+
 === ROADMAP PERSONALIZADO ===
 Cuando el usuario pida un plan de estudio, roadmap, o ruta de aprendizaje,
 genera uno estructurado así:
@@ -270,13 +288,24 @@ def chat():
         # Guardamos la pregunta en la base de datos
         guardar_mensaje(user_message)
 
+        # Buscamos en internet si la pregunta es sobre noticias o info reciente
+        contexto_web = ""
+        palabras_busqueda = ['noticia', 'hoy', 'reciente', 'actual', 'último', 'nueva', 'esta semana', 'este año', '2025', '2026']
+        if any(p in user_message.lower() for p in palabras_busqueda):
+            contexto_web = buscar_web(f"tecnología IA Ecuador {user_message}")
+
+        # Si hay contexto web, lo agregamos al mensaje
+        mensaje_con_contexto = user_message
+        if contexto_web:
+            mensaje_con_contexto = f"{user_message}\n\n[Información actualizada de internet:\n{contexto_web}]"
+
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             max_tokens=1024,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT}
             ] + conversation_history + [
-                {"role": "user", "content": user_message}
+                {"role": "user", "content": mensaje_con_contexto}
             ]
         )
 
@@ -286,7 +315,7 @@ def chat():
     except Exception as e:
         print("ERROR:", str(e))
         return jsonify({"reply": f"Error: {str(e)}"})
-    
+
 
 @app.route("/imagen", methods=["POST"])
 def imagen():
@@ -325,7 +354,7 @@ def imagen():
         print("ERROR imagen:", str(e))
         return jsonify({"reply": f"Error: {str(e)}"})
 
-    
+
 @app.route("/estadisticas")
 def estadisticas():
     # Ruta que devuelve las estadísticas en JSON
