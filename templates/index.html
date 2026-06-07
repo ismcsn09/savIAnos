@@ -235,7 +235,7 @@ async function sendMessage() {
 
         const data = await response.json();
         typingIndicator.remove();
-        appendMessage(data.reply, "bot");
+        typeMessage(data.reply, "bot");
 
         conversationHistory.push({
             role: "assistant",
@@ -254,28 +254,32 @@ function appendMessage(text, sender, isTyping = false) {
     messageDiv.className = `message ${sender}-message`;
     const contentDiv = document.createElement("div");
     contentDiv.className = "message-content";
+    contentDiv.textContent = text;
+    messageDiv.appendChild(contentDiv);
+    chatBox.appendChild(messageDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+    return messageDiv;
+}
 
-    // Detectar si hay fuentes en el texto y renderizarlas como links
-    if (sender === "bot" && text.includes("🔍 **Fuentes:**")) {
+function typeMessage(text, sender) {
+    const chatBox = document.getElementById("chat-box");
+    const messageDiv = document.createElement("div");
+    messageDiv.className = `message ${sender}-message`;
+    const contentDiv = document.createElement("div");
+    contentDiv.className = "message-content";
+    messageDiv.appendChild(contentDiv);
+    chatBox.appendChild(messageDiv);
+
+    let textoMain = text;
+    let fuentesHTML = "";
+
+    if (text.includes("🔍 **Fuentes:**")) {
         const partes = text.split("🔍 **Fuentes:**");
-        const textoMain = partes[0].trim();
+        textoMain = partes[0].trim();
         const fuentesText = partes[1] ? partes[1].trim() : "";
 
-        contentDiv.textContent = textoMain;
-
         if (fuentesText) {
-            const fuentesDiv = document.createElement("div");
-            fuentesDiv.style.marginTop = "10px";
-            fuentesDiv.style.borderTop = "1px solid rgba(0,68,204,0.3)";
-            fuentesDiv.style.paddingTop = "8px";
-            fuentesDiv.style.fontSize = "0.8rem";
-
-            const titulo = document.createElement("div");
-            titulo.textContent = "🔍 Fuentes:";
-            titulo.style.fontWeight = "600";
-            titulo.style.marginBottom = "4px";
-            fuentesDiv.appendChild(titulo);
-
+            let fuentesLinks = "";
             const lineas = fuentesText.split("\n").filter(l => l.trim().startsWith("-"));
             lineas.forEach(linea => {
                 const contenido = linea.replace(/^- /, "").trim();
@@ -283,27 +287,34 @@ function appendMessage(text, sender, isTyping = false) {
                 if (partesFuente.length >= 2) {
                     const nombre = partesFuente[0];
                     const url = "http" + partesFuente[1];
-                    const link = document.createElement("a");
-                    link.href = url;
-                    link.target = "_blank";
-                    link.textContent = "• " + nombre;
-                    link.style.display = "block";
-                    link.style.color = "#4d8aff";
-                    link.style.textDecoration = "none";
-                    link.style.marginBottom = "2px";
-                    fuentesDiv.appendChild(link);
+                    fuentesLinks += `<a href="${url}" target="_blank" style="display:block;color:#4d8aff;text-decoration:none;margin-bottom:2px;">• ${nombre}</a>`;
                 }
             });
-
-            contentDiv.appendChild(fuentesDiv);
+            fuentesHTML = `
+                <div style="margin-top:10px;border-top:1px solid rgba(0,68,204,0.3);padding-top:8px;font-size:0.8rem;">
+                    <div style="font-weight:600;margin-bottom:4px;">🔍 Fuentes:</div>
+                    ${fuentesLinks}
+                </div>`;
         }
-    } else {
-        contentDiv.textContent = text;
     }
 
-    messageDiv.appendChild(contentDiv);
-    chatBox.appendChild(messageDiv);
-    chatBox.scrollTop = chatBox.scrollHeight;
+    let i = 0;
+    const speed = 15;
+    function escribir() {
+        if (i < textoMain.length) {
+            contentDiv.textContent += textoMain.charAt(i);
+            i++;
+            chatBox.scrollTop = chatBox.scrollHeight;
+            setTimeout(escribir, speed);
+        } else if (fuentesHTML) {
+            const fuentesDiv = document.createElement("div");
+            fuentesDiv.innerHTML = fuentesHTML;
+            contentDiv.appendChild(fuentesDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    }
+    escribir();
+
     return messageDiv;
 }
 
@@ -445,7 +456,7 @@ async function enviarImagen(input) {
 
             const data = await response.json();
             typingIndicator.remove();
-            appendMessage(data.reply, "bot");
+            typeMessage(data.reply, "bot");
 
         } catch (error) {
             typingIndicator.remove();
