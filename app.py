@@ -334,10 +334,8 @@ def imagen():
         print("ERROR imagen:", str(e))
         return jsonify({"reply": f"Error: {str(e)}"})
     
-    @app.route("/generar-imagen", methods=["POST"])
-
-    def generar_imagen():
-        # Genera una imagen usando Hugging Face
+@app.route("/generar-imagen", methods=["POST"])
+def generar_imagen():
         try:
             data = request.get_json()
             prompt = data.get("prompt", "")
