@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -152,17 +151,17 @@
         </div>
 
         <!-- Input -->
-<div class="chat-input-area">
-    <button id="mic-btn" onclick="toggleVoz()" title="Hablar">🎤</button>
-    <input
-        type="text"
-        id="user-input"
-        placeholder="Escribe o habla tu pregunta..."
-    >
-    <button id="img-btn" onclick="document.getElementById('img-input').click()" title="Enviar imagen">🖼️</button>
-    <input type="file" id="img-input" accept="image/*" style="display:none" onchange="enviarImagen(this)">
-    <button id="send-btn" onclick="sendMessage()">➤</button>
-</div>
+        <div class="chat-input-area">
+            <button id="mic-btn" onclick="toggleVoz()" title="Hablar">🎤</button>
+            <input
+                type="text"
+                id="user-input"
+                placeholder="Escribe o habla tu pregunta..."
+            >
+            <button id="img-btn" onclick="document.getElementById('img-input').click()" title="Enviar imagen">🖼️</button>
+            <input type="file" id="img-input" accept="image/*" style="display:none" onchange="enviarImagen(this)">
+            <button id="send-btn" onclick="sendMessage()">➤</button>
+        </div>
     </div>
 
 </div>
@@ -220,8 +219,7 @@ async function sendMessage() {
         content: message
     });
 
-    const typingIndicator =
-        appendMessage("✦ Escribiendo...", "bot", true);
+    const typingIndicator = appendMessage("✦ Escribiendo...", "bot", true);
 
     try {
         const response = await fetch("/chat", {
@@ -236,77 +234,91 @@ async function sendMessage() {
         });
 
         const data = await response.json();
-
         typingIndicator.remove();
-
-      appendMessage(data.reply, "bot");
+        appendMessage(data.reply, "bot");
 
         conversationHistory.push({
             role: "assistant",
             content: data.reply
         });
+
     } catch (error) {
         typingIndicator.remove();
-        appendMessage(
-            "Hubo un error. Intenta de nuevo.",
-            "bot"
-        );
+        appendMessage("Hubo un error. Intenta de nuevo.", "bot");
     }
 }
 
 function appendMessage(text, sender, isTyping = false) {
+    const chatBox = document.getElementById("chat-box");
+    const messageDiv = document.createElement("div");
+    messageDiv.className = `message ${sender}-message`;
+    const contentDiv = document.createElement("div");
+    contentDiv.className = "message-content";
 
-    const chatBox =
-        document.getElementById("chat-box");
+    // Detectar si hay fuentes en el texto y renderizarlas como links
+    if (sender === "bot" && text.includes("🔍 **Fuentes:**")) {
+        const partes = text.split("🔍 **Fuentes:**");
+        const textoMain = partes[0].trim();
+        const fuentesText = partes[1] ? partes[1].trim() : "";
 
-    const messageDiv =
-        document.createElement("div");
+        contentDiv.textContent = textoMain;
 
-    messageDiv.className =
-        `message ${sender}-message`;
+        if (fuentesText) {
+            const fuentesDiv = document.createElement("div");
+            fuentesDiv.style.marginTop = "10px";
+            fuentesDiv.style.borderTop = "1px solid rgba(0,68,204,0.3)";
+            fuentesDiv.style.paddingTop = "8px";
+            fuentesDiv.style.fontSize = "0.8rem";
 
-    const contentDiv =
-        document.createElement("div");
+            const titulo = document.createElement("div");
+            titulo.textContent = "🔍 Fuentes:";
+            titulo.style.fontWeight = "600";
+            titulo.style.marginBottom = "4px";
+            fuentesDiv.appendChild(titulo);
 
-    contentDiv.className =
-        "message-content";
+            const lineas = fuentesText.split("\n").filter(l => l.trim().startsWith("-"));
+            lineas.forEach(linea => {
+                const contenido = linea.replace(/^- /, "").trim();
+                const partesFuente = contenido.split(": http");
+                if (partesFuente.length >= 2) {
+                    const nombre = partesFuente[0];
+                    const url = "http" + partesFuente[1];
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.target = "_blank";
+                    link.textContent = "• " + nombre;
+                    link.style.display = "block";
+                    link.style.color = "#4d8aff";
+                    link.style.textDecoration = "none";
+                    link.style.marginBottom = "2px";
+                    fuentesDiv.appendChild(link);
+                }
+            });
 
-    contentDiv.textContent = text;
+            contentDiv.appendChild(fuentesDiv);
+        }
+    } else {
+        contentDiv.textContent = text;
+    }
 
     messageDiv.appendChild(contentDiv);
     chatBox.appendChild(messageDiv);
-
-    chatBox.scrollTop =
-        chatBox.scrollHeight;
-
+    chatBox.scrollTop = chatBox.scrollHeight;
     return messageDiv;
 }
 
 function askSuggestion(question) {
-    const input =
-        document.getElementById("user-input");
-
+    const input = document.getElementById("user-input");
     input.value = question;
-
     sendMessage();
-
-    const suggestions =
-        document.querySelector(".suggestions");
-
-    if (suggestions)
-        suggestions.style.display = "none";
+    const suggestions = document.querySelector(".suggestions");
+    if (suggestions) suggestions.style.display = "none";
 }
 
 function limpiarChat() {
-
-    if (!confirm("¿Limpiar la conversación?"))
-        return;
-
+    if (!confirm("¿Limpiar la conversación?")) return;
     conversationHistory = [];
-
-    const chatBox =
-        document.getElementById("chat-box");
-
+    const chatBox = document.getElementById("chat-box");
     chatBox.innerHTML = `
         <div class="message bot-message">
             <div class="message-content">
@@ -318,44 +330,24 @@ function limpiarChat() {
 
 function toggleTheme() {
     const body = document.body;
-
-    const btn =
-        document.querySelector(".theme-btn");
-
+    const btn = document.querySelector(".theme-btn");
     body.classList.toggle("light");
-
-    btn.textContent =
-        body.classList.contains("light")
-            ? "🌙"
-            : "☀️";
+    btn.textContent = body.classList.contains("light") ? "🌙" : "☀️";
 }
 
 function toggleInfo() {
-    document
-        .getElementById("info-modal")
-        .classList.toggle("active");
+    document.getElementById("info-modal").classList.toggle("active");
 }
 
 function enterChat() {
-
-    const landing =
-        document.getElementById("landing-page");
-
+    const landing = document.getElementById("landing-page");
     landing.style.opacity = "0";
-    landing.style.transition =
-        "opacity 0.5s ease";
-
-    setTimeout(() => {
-        landing.style.display = "none";
-    }, 500);
+    landing.style.transition = "opacity 0.5s ease";
+    setTimeout(() => { landing.style.display = "none"; }, 500);
 }
 
-document
-    .getElementById("user-input")
-    .addEventListener("keypress", function(e) {
-
-        if (e.key === "Enter")
-            sendMessage();
+document.getElementById("user-input").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") sendMessage();
 });
 
 // ================================================
@@ -467,7 +459,5 @@ async function enviarImagen(input) {
 }
 </script>
 
-
 </body>
 </html>
-```
