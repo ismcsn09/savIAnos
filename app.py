@@ -27,11 +27,8 @@ client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 # ============================================================
 
 def init_db():
-    # Crea las tablas si no existen
     conn = sqlite3.connect('savianos.db')
     cursor = conn.cursor()
-    
-    # Tabla de mensajes
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS mensajes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,8 +36,6 @@ def init_db():
             fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    
-    # Tabla de sesiones (usuarios únicos)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS sesiones (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,12 +43,10 @@ def init_db():
             fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    
     conn.commit()
     conn.close()
 
 def guardar_mensaje(pregunta):
-    # Guarda cada pregunta en la base de datos
     conn = sqlite3.connect('savianos.db')
     cursor = conn.cursor()
     cursor.execute('INSERT INTO mensajes (pregunta) VALUES (?)', (pregunta,))
@@ -61,7 +54,6 @@ def guardar_mensaje(pregunta):
     conn.close()
 
 def guardar_sesion(ip):
-    # Guarda la IP del usuario si es nueva hoy
     conn = sqlite3.connect('savianos.db')
     cursor = conn.cursor()
     cursor.execute('''
@@ -75,37 +67,24 @@ def guardar_sesion(ip):
     conn.close()
 
 def obtener_estadisticas():
-    # Obtiene todas las estadísticas
     conn = sqlite3.connect('savianos.db')
     cursor = conn.cursor()
-    
-    # Total de mensajes
     cursor.execute('SELECT COUNT(*) FROM mensajes')
     total_mensajes = cursor.fetchone()[0]
-    
-    # Usuarios únicos hoy
     cursor.execute('''
         SELECT COUNT(DISTINCT ip) FROM sesiones 
         WHERE DATE(fecha) = DATE('now')
     ''')
     usuarios_hoy = cursor.fetchone()[0]
-    
-    # Total de usuarios únicos
     cursor.execute('SELECT COUNT(DISTINCT ip) FROM sesiones')
     total_usuarios = cursor.fetchone()[0]
-    
-    # Mensajes de hoy
     cursor.execute('''
         SELECT COUNT(*) FROM mensajes 
         WHERE DATE(fecha) = DATE('now')
     ''')
     mensajes_hoy = cursor.fetchone()[0]
-    
-    # Palabras más frecuentes en las preguntas
     cursor.execute('SELECT pregunta FROM mensajes ORDER BY fecha DESC LIMIT 100')
     preguntas = [row[0].lower() for row in cursor.fetchall()]
-    
-    # Contamos temas frecuentes
     temas = {
         'IA / Inteligencia Artificial': 0,
         'Ecuador / Tecnología': 0,
@@ -114,7 +93,6 @@ def obtener_estadisticas():
         'Machine Learning': 0,
         'Otros': 0
     }
-    
     for pregunta in preguntas:
         if any(w in pregunta for w in ['ia', 'inteligencia', 'artificial', 'robot']):
             temas['IA / Inteligencia Artificial'] += 1
@@ -128,9 +106,7 @@ def obtener_estadisticas():
             temas['Machine Learning'] += 1
         else:
             temas['Otros'] += 1
-    
     conn.close()
-    
     return {
         'total_mensajes': total_mensajes,
         'usuarios_hoy': usuarios_hoy,
@@ -145,12 +121,14 @@ def buscar_web(query):
         tavily = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
         results = tavily.search(query=query, max_results=3)
         contexto = ""
+        fuentes = []
         for r in results.get("results", []):
             contexto += f"- {r['title']}: {r['content'][:200]}\n"
-        return contexto
+            fuentes.append(f"{r['title']}: {r['url']}")
+        return contexto, fuentes
     except Exception as e:
         print("ERROR búsqueda:", str(e))
-        return ""
+        return "", []
 
 # ============================================================
 # PERSONALIDAD DEL BOT
@@ -273,7 +251,6 @@ YouTube, Kaggle, Google Colab, GitHub Student Pack.
 @app.route("/")
 def home():
     init_db()
-    # Inicializa la base de datos si no existe
     ip = request.remote_addr
     guardar_sesion(ip)
     return render_template("index.html")
@@ -290,9 +267,10 @@ def chat():
 
         # Buscamos en internet si la pregunta es sobre noticias o info reciente
         contexto_web = ""
+        fuentes_web = []
         palabras_busqueda = ['noticia', 'hoy', 'reciente', 'actual', 'último', 'nueva', 'esta semana', 'este año', '2025', '2026']
         if any(p in user_message.lower() for p in palabras_busqueda):
-            contexto_web = buscar_web(f"tecnología IA Ecuador {user_message}")
+            contexto_web, fuentes_web = buscar_web(user_message)
 
         # Si hay contexto web, lo agregamos al mensaje
         mensaje_con_contexto = user_message
@@ -310,6 +288,8 @@ def chat():
         )
 
         bot_reply = response.choices[0].message.content
+        if fuentes_web:
+            bot_reply += "\n\n🔍 **Fuentes:**\n" + "\n".join([f"- {f}" for f in fuentes_web])
         return jsonify({"reply": bot_reply})
 
     except Exception as e:
@@ -357,13 +337,11 @@ def imagen():
 
 @app.route("/estadisticas")
 def estadisticas():
-    # Ruta que devuelve las estadísticas en JSON
     stats = obtener_estadisticas()
     return jsonify(stats)
 
 @app.route("/panel")
 def panel():
-    # Página del panel de estadísticas
     return render_template("panel.html")
 
 # ============================================================
@@ -372,7 +350,6 @@ def panel():
 
 if __name__ == "__main__":
     init_db()
-    # Inicializamos la base de datos al arrancar
     import webbrowser
     import threading
     threading.Timer(1.5, lambda: webbrowser.open("http://127.0.0.1:5000")).start()
