@@ -821,3 +821,49 @@ body.light .suggestion-btn {
     color: #0044cc;
     border: 1px solid rgba(0, 68, 204, 0.3);
 }
+/* ================================================
+   AVATAR ANIMADO
+================================================ */
+.chat-header-left h2 .avatar-bot {
+    display: inline-block;
+    transition: transform 0.1s;
+}
+
+.chat-header-left h2 .avatar-bot.hablando {
+    animation: hablar 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes hablar {
+    0% { transform: scale(1) rotate(-5deg); }
+    100% { transform: scale(1.2) rotate(5deg); }
+}
+/* ================================================
+   BOTÓN COPIAR
+================================================ */
+.message-wrapper {
+    position: relative;
+}
+
+.copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 68, 204, 0.2);
+    border: 1px solid rgba(0, 68, 204, 0.4);
+    color: white;
+    border-radius: 8px;
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.message-wrapper:hover .copy-btn {
+    opacity: 1;
+}
+
+.copy-btn.copiado {
+    background: rgba(0, 200, 100, 0.3);
+    border-color: rgba(0, 200, 100, 0.5);
+}

@@ -104,7 +104,7 @@
         <!-- Header -->
         <div class="chat-header">
             <div class="chat-header-left">
-                <h2>savIAnos 🤖</h2>
+                <h2><span class="avatar-bot">🤖</span> savIAnos</h2>
                 <p>Pregúntame sobre IA y tecnología en Ecuador</p>
             </div>
 
@@ -219,6 +219,7 @@ async function sendMessage() {
         content: message
     });
 
+    botHablando();
     const typingIndicator = appendMessage("✦ Escribiendo...", "bot", true);
 
     try {
@@ -236,6 +237,7 @@ async function sendMessage() {
         const data = await response.json();
         typingIndicator.remove();
         typeMessage(data.reply, "bot");
+        botSilencio();
 
         conversationHistory.push({
             role: "assistant",
@@ -244,8 +246,19 @@ async function sendMessage() {
 
     } catch (error) {
         typingIndicator.remove();
+        botSilencio();
         appendMessage("Hubo un error. Intenta de nuevo.", "bot");
     }
+}
+
+function botHablando() {
+    const avatar = document.querySelector(".avatar-bot");
+    if (avatar) avatar.classList.add("hablando");
+}
+
+function botSilencio() {
+    const avatar = document.querySelector(".avatar-bot");
+    if (avatar) avatar.classList.remove("hablando");
 }
 
 function appendMessage(text, sender, isTyping = false) {
@@ -263,12 +276,36 @@ function appendMessage(text, sender, isTyping = false) {
 
 function typeMessage(text, sender) {
     const chatBox = document.getElementById("chat-box");
+
+    const wrapperDiv = document.createElement("div");
+    wrapperDiv.className = "message-wrapper";
+
     const messageDiv = document.createElement("div");
     messageDiv.className = `message ${sender}-message`;
+
     const contentDiv = document.createElement("div");
     contentDiv.className = "message-content";
     messageDiv.appendChild(contentDiv);
-    chatBox.appendChild(messageDiv);
+
+    if (sender === "bot") {
+        const copyBtn = document.createElement("button");
+        copyBtn.className = "copy-btn";
+        copyBtn.textContent = "📋 Copiar";
+        copyBtn.onclick = function() {
+            navigator.clipboard.writeText(contentDiv.textContent).then(() => {
+                copyBtn.textContent = "✅ Copiado";
+                copyBtn.classList.add("copiado");
+                setTimeout(() => {
+                    copyBtn.textContent = "📋 Copiar";
+                    copyBtn.classList.remove("copiado");
+                }, 2000);
+            });
+        };
+        wrapperDiv.appendChild(copyBtn);
+    }
+
+    wrapperDiv.appendChild(messageDiv);
+    chatBox.appendChild(wrapperDiv);
 
     let textoMain = text;
     let fuentesHTML = "";
@@ -442,6 +479,7 @@ async function enviarImagen(input) {
         chatBox.appendChild(messageDiv);
         chatBox.scrollTop = chatBox.scrollHeight;
 
+        botHablando();
         const typingIndicator = appendMessage("✦ Analizando imagen...", "bot", true);
 
         try {
@@ -457,9 +495,11 @@ async function enviarImagen(input) {
             const data = await response.json();
             typingIndicator.remove();
             typeMessage(data.reply, "bot");
+            botSilencio();
 
         } catch (error) {
             typingIndicator.remove();
+            botSilencio();
             appendMessage("Error al analizar la imagen. Intenta de nuevo.", "bot");
         }
 
