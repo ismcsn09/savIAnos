@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>savIAnos — Acceder</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #020818;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(0, 68, 204, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(0, 34, 102, 0.2) 0%, transparent 50%);
+            animation: bgPulse 8s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        @keyframes bgPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-avatar {
+            font-size: 3.5rem;
+            display: block;
+            margin-bottom: 10px;
+            animation: bounce 3s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .logo h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+            letter-spacing: 2px;
+        }
+
+        .logo h1 span { color: #4d8aff; }
+
+        .logo p {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .card {
+            background: rgba(0, 15, 50, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 68, 204, 0.3);
+            border-radius: 20px;
+            padding: 35px 30px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 25px;
+            background: rgba(0, 30, 80, 0.5);
+            border-radius: 12px;
+            padding: 4px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            color: rgba(255,255,255,0.5);
+            cursor: pointer;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            background: transparent;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #0033aa, #0055ff);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 68, 204, 0.4);
+        }
+
+        .form { display: none; }
+        .form.active { display: block; }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 30, 80, 0.6);
+            border: 1px solid rgba(0, 68, 204, 0.3);
+            border-radius: 12px;
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: #0044cc;
+            background: rgba(0, 30, 80, 0.8);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255,255,255,0.3);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #0033aa, #0055ff);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 68, 204, 0.4);
+            margin-top: 5px;
+        }
+
+        .btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(0, 68, 204, 0.6);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .mensaje {
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            margin-bottom: 18px;
+            display: none;
+        }
+
+        .mensaje.error {
+            background: rgba(255, 50, 50, 0.2);
+            border: 1px solid rgba(255, 50, 50, 0.4);
+            color: #ff8888;
+            display: block;
+        }
+
+        .mensaje.ok {
+            background: rgba(0, 200, 100, 0.2);
+            border: 1px solid rgba(0, 200, 100, 0.4);
+            color: #88ffbb;
+            display: block;
+        }
+
+        .school-badge {
+            text-align: center;
+            margin-top: 25px;
+            color: rgba(255,255,255,0.35);
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 480px) {
+            .card { padding: 25px 20px; }
+            .logo h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="logo">
+        <span class="logo-avatar">🤖</span>
+        <h1>sav<span>IA</span>nos</h1>
+        <p>Tu asistente de IA educativo</p>
+    </div>
+
+    <div class="card">
+
+        {% if mensaje_ok %}
+        <div class="mensaje ok">{{ mensaje_ok }}</div>
+        {% endif %}
+
+        {% if mensaje_error %}
+        <div class="mensaje error">{{ mensaje_error }}</div>
+        {% endif %}
+
+        <div class="tabs">
+            <button class="tab active" onclick="mostrarTab('login')">Iniciar sesión</button>
+            <button class="tab" onclick="mostrarTab('registro')">Registrarse</button>
+        </div>
+
+        <!-- LOGIN -->
+        <div class="form active" id="form-login">
+            <div id="msg-login"></div>
+            <div class="form-group">
+                <label>Email o nombre de usuario</label>
+                <input type="text" id="login-email" placeholder="tucorreo@gmail.com">
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" id="login-password" placeholder="••••••••">
+            </div>
+            <button class="btn" onclick="iniciarSesion()">Iniciar sesión →</button>
+        </div>
+
+        <!-- REGISTRO -->
+        <div class="form" id="form-registro">
+            <div id="msg-registro"></div>
+            <div class="form-group">
+                <label>Nombre completo</label>
+                <input type="text" id="reg-nombre" placeholder="Tu nombre">
+            </div>
+            <div class="form-group">
+                <label>Gmail</label>
+                <input type="email" id="reg-email" placeholder="tucorreo@gmail.com">
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres">
+            </div>
+            <button class="btn" onclick="registrarse()">Crear cuenta →</button>
+        </div>
+
+    </div>
+
+    <div class="school-badge">
+        🏫 Unidad Educativa Salesiana Fiscomisional Domingo Savio · Guayaquil
+    </div>
+
+</div>
+
+<script>
+function mostrarTab(tab) {
+    document.querySelectorAll('.tab').forEach((t, i) => {
+        t.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'registro' && i === 1));
+    });
+    document.getElementById('form-login').classList.toggle('active', tab === 'login');
+    document.getElementById('form-registro').classList.toggle('active', tab === 'registro');
+}
+
+function mostrarMensaje(id, texto, tipo) {
+    const el = document.getElementById(id);
+    el.textContent = texto;
+    el.className = `mensaje ${tipo}`;
+}
+
+async function iniciarSesion() {
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+
+    if (!email || !password) {
+        mostrarMensaje('msg-login', 'Completa todos los campos.', 'error');
+        return;
+    }
+
+    const btn = document.querySelector('#form-login .btn');
+    btn.disabled = true;
+    btn.textContent = 'Entrando...';
+
+    try {
+        const res = await fetch('/iniciar-sesion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (data.error) {
+            mostrarMensaje('msg-login', data.error, 'error');
+            btn.disabled = false;
+            btn.textContent = 'Iniciar sesión →';
+        } else {
+            window.location.href = '/';
+        }
+    } catch (e) {
+        mostrarMensaje('msg-login', 'Error de conexión.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Iniciar sesión →';
+    }
+}
+
+async function registrarse() {
+    const nombre = document.getElementById('reg-nombre').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-password').value;
+
+    if (!nombre || !email || !password) {
+        mostrarMensaje('msg-registro', 'Completa todos los campos.', 'error');
+        return;
+    }
+
+    const btn = document.querySelector('#form-registro .btn');
+    btn.disabled = true;
+    btn.textContent = 'Creando cuenta...';
+
+    try {
+        const res = await fetch('/registro', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre, email, password })
+        });
+        const data = await res.json();
+
+        if (data.error) {
+            mostrarMensaje('msg-registro', data.error, 'error');
+        } else {
+            mostrarMensaje('msg-registro', data.ok, 'ok');
+        }
+        btn.disabled = false;
+        btn.textContent = 'Crear cuenta →';
+    } catch (e) {
+        mostrarMensaje('msg-registro', 'Error de conexión.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Crear cuenta →';
+    }
+}
+
+document.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        const loginActivo = document.getElementById('form-login').classList.contains('active');
+        if (loginActivo) iniciarSesion();
+        else registrarse();
+    }
+});
+</script>
+
+</body>
+</html>

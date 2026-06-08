@@ -1,26 +1,26 @@
 # ============================================================
 # IMPORTACIONES
 # ============================================================
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from groq import Groq
 from dotenv import load_dotenv
 import os
 import sqlite3
-# sqlite3 es la base de datos incluida en Python
-# guarda los datos en un archivo .db
 import base64
-# base64 para convertir imágenes a texto y enviarlas
 from datetime import datetime
-# datetime nos permite guardar la fecha y hora de cada mensaje
+import secrets
+import hashlib
 from tavily import TavilyClient
-# TavilyClient para búsquedas web en tiempo real
+import resend
 
 # ============================================================
 # INICIALIZACIÓN
 # ============================================================
 load_dotenv()
 app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY", secrets.token_hex(32))
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+resend.api_key = os.getenv("RESEND_API_KEY")
 
 # ============================================================
 # BASE DE DATOS
@@ -29,6 +29,7 @@ client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 def init_db():
     conn = sqlite3.connect('savianos.db')
     cursor = conn.cursor()
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS mensajes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,6 +37,7 @@ def init_db():
             fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS sesiones (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -43,6 +45,19 @@ def init_db():
             fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            verificado INTEGER DEFAULT 0,
+            token_verificacion TEXT,
+            fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
     conn.commit()
     conn.close()
 
@@ -115,8 +130,10 @@ def obtener_estadisticas():
         'temas': temas
     }
 
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
 def buscar_web(query):
-    # Busca información actualizada en internet usando Tavily
     try:
         tavily = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
         results = tavily.search(query=query, max_results=3)
@@ -245,18 +262,148 @@ YouTube, Kaggle, Google Colab, GitHub Student Pack.
 """
 
 # ============================================================
-# RUTAS
+# RUTAS DE AUTENTICACIÓN
+# ============================================================
+
+@app.route("/login")
+def login():
+    if session.get("usuario"):
+        return redirect(url_for("home"))
+    return render_template("login.html")
+
+@app.route("/registro", methods=["POST"])
+def registro():
+    try:
+        data = request.get_json()
+        nombre = data.get("nombre", "").strip()
+        email = data.get("email", "").strip().lower()
+        password = data.get("password", "")
+
+        if not nombre or not email or not password:
+            return jsonify({"error": "Todos los campos son requeridos"})
+
+        if len(password) < 6:
+            return jsonify({"error": "La contraseña debe tener al menos 6 caracteres"})
+
+        conn = sqlite3.connect('savianos.db')
+        cursor = conn.cursor()
+
+        cursor.execute('SELECT id FROM usuarios WHERE email = ?', (email,))
+        if cursor.fetchone():
+            conn.close()
+            return jsonify({"error": "Este email ya está registrado"})
+
+        token = secrets.token_urlsafe(32)
+        password_hash = hash_password(password)
+
+        cursor.execute('''
+            INSERT INTO usuarios (nombre, email, password, token_verificacion)
+            VALUES (?, ?, ?, ?)
+        ''', (nombre, email, password_hash, token))
+        conn.commit()
+        conn.close()
+
+        url_verificacion = f"https://savianos.onrender.com/verificar/{token}"
+
+        resend.Emails.send({
+            "from": "onboarding@resend.dev",
+            "to": email,
+            "subject": "Verifica tu cuenta en savIAnos",
+            "html": f"""
+            <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; background: #020818; color: white; padding: 40px; border-radius: 12px;">
+                <h1 style="color: #4d8aff; text-align: center;">sav<span style="color: white;">IA</span>nos</h1>
+                <h2 style="text-align: center;">¡Bienvenido, {nombre}!</h2>
+                <p style="text-align: center; color: rgba(255,255,255,0.7);">
+                    Haz clic en el botón para verificar tu cuenta y empezar a aprender sobre IA en Ecuador.
+                </p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="{url_verificacion}" 
+                       style="background: linear-gradient(135deg, #0033aa, #0055ff); color: white; padding: 14px 40px; border-radius: 25px; text-decoration: none; font-weight: bold; font-size: 1rem;">
+                        Verificar mi cuenta ✓
+                    </a>
+                </div>
+                <p style="text-align: center; color: rgba(255,255,255,0.4); font-size: 0.8rem;">
+                    Si no creaste esta cuenta, ignora este correo.
+                </p>
+            </div>
+            """
+        })
+
+        return jsonify({"ok": "Cuenta creada. Revisa tu correo para verificarla."})
+
+    except Exception as e:
+        print("ERROR registro:", str(e))
+        return jsonify({"error": f"Error: {str(e)}"})
+
+@app.route("/verificar/<token>")
+def verificar(token):
+    conn = sqlite3.connect('savianos.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, nombre FROM usuarios WHERE token_verificacion = ?', (token,))
+    usuario = cursor.fetchone()
+
+    if not usuario:
+        conn.close()
+        return render_template("login.html", mensaje_error="Token inválido o ya usado.")
+
+    cursor.execute('UPDATE usuarios SET verificado = 1, token_verificacion = NULL WHERE id = ?', (usuario[0],))
+    conn.commit()
+    conn.close()
+
+    return render_template("login.html", mensaje_ok=f"¡Cuenta verificada! Ya puedes iniciar sesión, {usuario[1]}.")
+
+@app.route("/iniciar-sesion", methods=["POST"])
+def iniciar_sesion():
+    try:
+        data = request.get_json()
+        email_o_nombre = data.get("email", "").strip().lower()
+        password = data.get("password", "")
+        password_hash = hash_password(password)
+
+        conn = sqlite3.connect('savianos.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT id, nombre, verificado FROM usuarios 
+            WHERE (email = ? OR LOWER(nombre) = ?) AND password = ?
+        ''', (email_o_nombre, email_o_nombre, password_hash))
+        usuario = cursor.fetchone()
+        conn.close()
+
+        if not usuario:
+            return jsonify({"error": "Email/nombre o contraseña incorrectos"})
+
+        if not usuario[2]:
+            return jsonify({"error": "Debes verificar tu cuenta primero. Revisa tu correo."})
+
+        session["usuario"] = {"id": usuario[0], "nombre": usuario[1]}
+        return jsonify({"ok": "Sesión iniciada"})
+
+    except Exception as e:
+        print("ERROR login:", str(e))
+        return jsonify({"error": f"Error: {str(e)}"})
+
+@app.route("/cerrar-sesion")
+def cerrar_sesion():
+    session.pop("usuario", None)
+    return redirect(url_for("login"))
+
+# ============================================================
+# RUTAS PRINCIPALES
 # ============================================================
 
 @app.route("/")
 def home():
+    if not session.get("usuario"):
+        return redirect(url_for("login"))
     init_db()
     ip = request.remote_addr
     guardar_sesion(ip)
-    return render_template("index.html")
+    return render_template("index.html", usuario=session["usuario"])
 
 @app.route("/chat", methods=["POST"])
 def chat():
+    if not session.get("usuario"):
+        return jsonify({"error": "No autorizado"}), 401
     try:
         data = request.get_json()
         user_message = data.get("message", "")
@@ -306,6 +453,8 @@ def chat():
 
 @app.route("/imagen", methods=["POST"])
 def imagen():
+    if not session.get("usuario"):
+        return jsonify({"error": "No autorizado"}), 401
     try:
         data = request.get_json()
         image_base64 = data.get("image", "")
