@@ -225,27 +225,102 @@ async function sendMessage() {
     try {
         const response = await fetch("/chat", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 message: message,
                 history: conversationHistory
             })
         });
 
-        const data = await response.json();
         typingIndicator.remove();
-        typeMessage(data.reply, "bot");
-        botSilencio();
 
-        conversationHistory.push({
-            role: "assistant",
-            content: data.reply
-        });
+        const chatBox = document.getElementById("chat-box");
+        const wrapperDiv = document.createElement("div");
+        wrapperDiv.className = "message-wrapper";
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "message bot-message";
+        const contentDiv = document.createElement("div");
+        contentDiv.className = "message-content";
+        messageDiv.appendChild(contentDiv);
+
+        const copyBtn = document.createElement("button");
+        copyBtn.className = "copy-btn";
+        copyBtn.textContent = "📋 Copiar";
+        copyBtn.onclick = function() {
+            navigator.clipboard.writeText(contentDiv.textContent).then(() => {
+                copyBtn.textContent = "✅ Copiado";
+                copyBtn.classList.add("copiado");
+                setTimeout(() => {
+                    copyBtn.textContent = "📋 Copiar";
+                    copyBtn.classList.remove("copiado");
+                }, 2000);
+            });
+        };
+        wrapperDiv.appendChild(copyBtn);
+        wrapperDiv.appendChild(messageDiv);
+        chatBox.appendChild(wrapperDiv);
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullText = "";
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value);
+            const lines = chunk.split("\n");
+
+            for (const line of lines) {
+                if (line.startsWith("data: ")) {
+                    const token = line.replace("data: ", "");
+                    if (token === "[DONE]") {
+                        botSilencio();
+                        conversationHistory.push({
+                            role: "assistant",
+                            content: fullText
+                        });
+
+                        // Procesar fuentes al final
+                        if (fullText.includes("🔍 **Fuentes:**")) {
+                            const partes = fullText.split("🔍 **Fuentes:**");
+                            const textoMain = partes[0].trim();
+                            const fuentesText = partes[1] ? partes[1].trim() : "";
+                            contentDiv.textContent = textoMain;
+
+                            if (fuentesText) {
+                                let fuentesLinks = "";
+                                const lineas = fuentesText.split("\n").filter(l => l.trim().startsWith("-"));
+                                lineas.forEach(linea => {
+                                    const contenido = linea.replace(/^- /, "").trim();
+                                    const partesFuente = contenido.split(": http");
+                                    if (partesFuente.length >= 2) {
+                                        const nombre = partesFuente[0];
+                                        const url = "http" + partesFuente[1];
+                                        fuentesLinks += `<a href="${url}" target="_blank" style="display:block;color:#4d8aff;text-decoration:none;margin-bottom:2px;">• ${nombre}</a>`;
+                                    }
+                                });
+                                const fuentesDiv = document.createElement("div");
+                                fuentesDiv.innerHTML = `
+                                    <div style="margin-top:10px;border-top:1px solid rgba(0,68,204,0.3);padding-top:8px;font-size:0.8rem;">
+                                        <div style="font-weight:600;margin-bottom:4px;">🔍 Fuentes:</div>
+                                        ${fuentesLinks}
+                                    </div>`;
+                                contentDiv.appendChild(fuentesDiv);
+                            }
+                        }
+                    } else {
+                        fullText += token;
+                        if (!fullText.includes("🔍 **Fuentes:**")) {
+                            contentDiv.textContent = fullText;
+                        }
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    }
+                }
+            }
+        }
 
     } catch (error) {
-        typingIndicator.remove();
         botSilencio();
         appendMessage("Hubo un error. Intenta de nuevo.", "bot");
     }

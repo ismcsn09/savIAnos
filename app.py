@@ -262,35 +262,42 @@ def chat():
         user_message = data.get("message", "")
         conversation_history = data.get("history", [])
 
-        # Guardamos la pregunta en la base de datos
         guardar_mensaje(user_message)
 
-        # Buscamos en internet si la pregunta es sobre noticias o info reciente
         contexto_web = ""
         fuentes_web = []
         palabras_busqueda = ['noticia', 'hoy', 'reciente', 'actual', 'último', 'nueva', 'esta semana', 'este año', '2025', '2026']
         if any(p in user_message.lower() for p in palabras_busqueda):
             contexto_web, fuentes_web = buscar_web(user_message)
 
-        # Si hay contexto web, lo agregamos al mensaje
         mensaje_con_contexto = user_message
         if contexto_web:
             mensaje_con_contexto = f"{user_message}\n\n[Información actualizada de internet:\n{contexto_web}]"
 
-        response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            max_tokens=1024,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT}
-            ] + conversation_history + [
-                {"role": "user", "content": mensaje_con_contexto}
-            ]
-        )
+        def generar():
+            stream = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                max_tokens=1024,
+                stream=True,
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT}
+                ] + conversation_history + [
+                    {"role": "user", "content": mensaje_con_contexto}
+                ]
+            )
+            for chunk in stream:
+                token = chunk.choices[0].delta.content
+                if token:
+                    yield f"data: {token}\n\n"
 
-        bot_reply = response.choices[0].message.content
-        if fuentes_web:
-            bot_reply += "\n\n🔍 **Fuentes:**\n" + "\n".join([f"- {f}" for f in fuentes_web])
-        return jsonify({"reply": bot_reply})
+            if fuentes_web:
+                fuentes_str = "\n\n🔍 **Fuentes:**\n" + "\n".join([f"- {f}" for f in fuentes_web])
+                yield f"data: {fuentes_str}\n\n"
+
+            yield "data: [DONE]\n\n"
+
+        from flask import Response
+        return Response(generar(), mimetype="text/event-stream")
 
     except Exception as e:
         print("ERROR:", str(e))
