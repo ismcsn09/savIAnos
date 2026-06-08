@@ -267,6 +267,7 @@ YouTube, Kaggle, Google Colab, GitHub Student Pack.
 
 @app.route("/login")
 def login():
+    init_db()
     if session.get("usuario"):
         return redirect(url_for("home"))
     return render_template("login.html")
