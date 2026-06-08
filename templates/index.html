@@ -109,11 +109,12 @@
             </div>
 
             <div class="chat-header-right">
-    <span style="color:rgba(255,255,255,0.5);font-size:0.8rem;margin-right:5px;">{{ usuario.nombre }}</span>
-    <button class="header-btn" onclick="toggleInfo()" title="Sobre savIAnos">ℹ️</button>
-    <button class="header-btn theme-btn" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
-    <a href="/cerrar-sesion" class="header-btn" title="Cerrar sesión" style="text-decoration:none;display:flex;align-items:center;justify-content:center;">🚪</a>
-</div>
+                <span style="color:rgba(255,255,255,0.5);font-size:0.8rem;margin-right:5px;">{{ usuario.nombre }}</span>
+                <button class="header-btn" onclick="toggleInfo()" title="Sobre savIAnos">ℹ️</button>
+                <button class="header-btn theme-btn" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
+                <a href="/cerrar-sesion" class="header-btn" title="Cerrar sesión" style="text-decoration:none;display:flex;align-items:center;justify-content:center;">🚪</a>
+            </div>
+        </div>
 
         <!-- Mensajes -->
         <div class="chat-box" id="chat-box">
@@ -282,7 +283,6 @@ async function sendMessage() {
                             content: fullText
                         });
 
-                        // Procesar fuentes al final
                         if (fullText.includes("🔍 **Fuentes:**")) {
                             const partes = fullText.split("🔍 **Fuentes:**");
                             const textoMain = partes[0].trim();
@@ -352,13 +352,10 @@ function appendMessage(text, sender, isTyping = false) {
 
 function typeMessage(text, sender) {
     const chatBox = document.getElementById("chat-box");
-
     const wrapperDiv = document.createElement("div");
     wrapperDiv.className = "message-wrapper";
-
     const messageDiv = document.createElement("div");
     messageDiv.className = `message ${sender}-message`;
-
     const contentDiv = document.createElement("div");
     contentDiv.className = "message-content";
     messageDiv.appendChild(contentDiv);
