@@ -11,7 +11,7 @@ from datetime import datetime
 import secrets
 import hashlib
 from tavily import TavilyClient
-import resend
+
 
 # ============================================================
 # INICIALIZACIÓN
@@ -20,7 +20,7 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", secrets.token_hex(32))
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-resend.api_key = os.getenv("RESEND_API_KEY")
+
 
 # ============================================================
 # BASE DE DATOS
@@ -52,7 +52,7 @@ def init_db():
             nombre TEXT NOT NULL,
             email TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
-            verificado INTEGER DEFAULT 0,
+            verificado INTEGER DEFAULT 1,
             token_verificacion TEXT,
             fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
@@ -276,6 +276,7 @@ def login():
 def registro():
     try:
         data = request.get_json()
+
         nombre = data.get("nombre", "").strip()
         email = data.get("email", "").strip().lower()
         password = data.get("password", "")
@@ -286,72 +287,36 @@ def registro():
         if len(password) < 6:
             return jsonify({"error": "La contraseña debe tener al menos 6 caracteres"})
 
-        conn = sqlite3.connect('savianos.db')
+        conn = sqlite3.connect("savianos.db")
         cursor = conn.cursor()
 
-        cursor.execute('SELECT id FROM usuarios WHERE email = ?', (email,))
+        cursor.execute(
+            "SELECT id FROM usuarios WHERE email = ?",
+            (email,)
+        )
+
         if cursor.fetchone():
             conn.close()
             return jsonify({"error": "Este email ya está registrado"})
 
-        token = secrets.token_urlsafe(32)
         password_hash = hash_password(password)
 
-        cursor.execute('''
-            INSERT INTO usuarios (nombre, email, password, token_verificacion)
-            VALUES (?, ?, ?, ?)
-        ''', (nombre, email, password_hash, token))
+        cursor.execute("""
+            INSERT INTO usuarios
+            (nombre, email, password, verificado)
+            VALUES (?, ?, ?, 1)
+        """, (nombre, email, password_hash))
+
         conn.commit()
         conn.close()
 
-        url_verificacion = f"https://savianos.onrender.com/verificar/{token}"
-
-        resend.Emails.send({
-            "from": "onboarding@resend.dev",
-            "to": email,
-            "subject": "Verifica tu cuenta en savIAnos",
-            "html": f"""
-            <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; background: #020818; color: white; padding: 40px; border-radius: 12px;">
-                <h1 style="color: #4d8aff; text-align: center;">sav<span style="color: white;">IA</span>nos</h1>
-                <h2 style="text-align: center;">¡Bienvenido, {nombre}!</h2>
-                <p style="text-align: center; color: rgba(255,255,255,0.7);">
-                    Haz clic en el botón para verificar tu cuenta y empezar a aprender sobre IA en Ecuador.
-                </p>
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="{url_verificacion}" 
-                       style="background: linear-gradient(135deg, #0033aa, #0055ff); color: white; padding: 14px 40px; border-radius: 25px; text-decoration: none; font-weight: bold; font-size: 1rem;">
-                        Verificar mi cuenta ✓
-                    </a>
-                </div>
-                <p style="text-align: center; color: rgba(255,255,255,0.4); font-size: 0.8rem;">
-                    Si no creaste esta cuenta, ignora este correo.
-                </p>
-            </div>
-            """
+        return jsonify({
+            "ok": "Cuenta creada correctamente"
         })
-
-        return jsonify({"ok": "Cuenta creada. Revisa tu correo para verificarla."})
 
     except Exception as e:
         print("ERROR registro:", str(e))
-        return jsonify({"error": f"Error: {str(e)}"})
-
-@app.route("/verificar/<token>")
-def verificar(token):
-    conn = sqlite3.connect('savianos.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT id, nombre FROM usuarios WHERE token_verificacion = ?', (token,))
-    usuario = cursor.fetchone()
-
-    if not usuario:
-        conn.close()
-        return render_template("login.html", mensaje_error="Token inválido o ya usado.")
-
-    cursor.execute('UPDATE usuarios SET verificado = 1, token_verificacion = NULL WHERE id = ?', (usuario[0],))
-    conn.commit()
-    conn.close()
-
-    return render_template("login.html", mensaje_ok=f"¡Cuenta verificada! Ya puedes iniciar sesión, {usuario[1]}.")
+        return jsonify({"error": str(e)})
 
 @app.route("/iniciar-sesion", methods=["POST"])
 def iniciar_sesion():
@@ -372,9 +337,6 @@ def iniciar_sesion():
 
         if not usuario:
             return jsonify({"error": "Email/nombre o contraseña incorrectos"})
-
-        if not usuario[2]:
-            return jsonify({"error": "Debes verificar tu cuenta primero. Revisa tu correo."})
 
         session["usuario"] = {"id": usuario[0], "nombre": usuario[1]}
         return jsonify({"ok": "Sesión iniciada"})
