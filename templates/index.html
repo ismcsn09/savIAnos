@@ -8,6 +8,23 @@
 </head>
 <body>
 
+<!-- Botón historial -->
+<button class="historial-btn" onclick="toggleHistorial()" title="Historial">☰</button>
+
+<!-- Overlay -->
+<div class="historial-overlay" id="historial-overlay" onclick="cerrarHistorial()"></div>
+
+<!-- Panel historial -->
+<div class="historial-panel" id="historial-panel">
+    <div class="historial-header">
+        <h3>💬 Historial</h3>
+        <button class="historial-close" onclick="cerrarHistorial()">✕</button>
+    </div>
+    <div class="historial-lista" id="historial-lista">
+        <div class="historial-vacio">Aún no hay mensajes en esta sesión.</div>
+    </div>
+</div>
+
 <!-- ================================================
      PÁGINA DE INICIO
 ================================================ -->
@@ -214,6 +231,7 @@ async function sendMessage() {
     if (!message) return;
 
     appendMessage(message, "user");
+    agregarAlHistorial(message, "user");
     input.value = "";
 
     conversationHistory.push({
@@ -277,6 +295,7 @@ async function sendMessage() {
                 if (line.startsWith("data: ")) {
                     const token = line.replace("data: ", "");
                     if (token === "[DONE]") {
+                        agregarAlHistorial(fullText, "bot");
                         botSilencio();
                         conversationHistory.push({
                             role: "assistant",
@@ -470,6 +489,44 @@ function enterChat() {
 document.getElementById("user-input").addEventListener("keypress", function(e) {
     if (e.key === "Enter") sendMessage();
 });
+
+// ================================================
+// HISTORIAL
+// ================================================
+function toggleHistorial() {
+    const panel = document.getElementById("historial-panel");
+    const overlay = document.getElementById("historial-overlay");
+    panel.classList.toggle("abierto");
+    overlay.classList.toggle("activo");
+}
+
+function cerrarHistorial() {
+    document.getElementById("historial-panel").classList.remove("abierto");
+    document.getElementById("historial-overlay").classList.remove("activo");
+}
+
+function agregarAlHistorial(texto, rol) {
+    const lista = document.getElementById("historial-lista");
+    const vacio = lista.querySelector(".historial-vacio");
+    if (vacio) vacio.remove();
+
+    const item = document.createElement("div");
+    item.className = `historial-item ${rol === "user" ? "usuario" : ""}`;
+
+    const roleDiv = document.createElement("div");
+    roleDiv.className = "hi-role";
+    roleDiv.textContent = rol === "user" ? "Tú" : "savIAnos";
+
+    const textoDiv = document.createElement("div");
+    textoDiv.className = "hi-texto";
+    const textoLimpio = texto.split("🔍 **Fuentes:**")[0].trim();
+    textoDiv.textContent = textoLimpio.length > 60 ? textoLimpio.substring(0, 60) + "..." : textoLimpio;
+
+    item.appendChild(roleDiv);
+    item.appendChild(textoDiv);
+    lista.appendChild(item);
+    lista.scrollTop = lista.scrollHeight;
+}
 
 // ================================================
 // VOZ - Web Speech API
