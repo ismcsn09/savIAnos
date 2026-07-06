@@ -11,7 +11,7 @@ from datetime import datetime
 import secrets
 import hashlib
 from tavily import TavilyClient
-
+from supabase import create_client
 
 # ============================================================
 # INICIALIZACIÓN
@@ -20,16 +20,15 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", secrets.token_hex(32))
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-
+supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
 
 # ============================================================
-# BASE DE DATOS
+# BASE DE DATOS SQLITE (estadísticas y mensajes)
 # ============================================================
 
 def init_db():
     conn = sqlite3.connect('savianos.db')
     cursor = conn.cursor()
-
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS mensajes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,7 +36,6 @@ def init_db():
             fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS sesiones (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,19 +43,6 @@ def init_db():
             fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS usuarios (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nombre TEXT NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            verificado INTEGER DEFAULT 1,
-            token_verificacion TEXT,
-            fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-
     conn.commit()
     conn.close()
 
@@ -276,7 +261,6 @@ def login():
 def registro():
     try:
         data = request.get_json()
-
         nombre = data.get("nombre", "").strip()
         email = data.get("email", "").strip().lower()
         password = data.get("password", "")
@@ -287,32 +271,20 @@ def registro():
         if len(password) < 6:
             return jsonify({"error": "La contraseña debe tener al menos 6 caracteres"})
 
-        conn = sqlite3.connect("savianos.db")
-        cursor = conn.cursor()
-
-        cursor.execute(
-            "SELECT id FROM usuarios WHERE email = ?",
-            (email,)
-        )
-
-        if cursor.fetchone():
-            conn.close()
+        # Verificar si email ya existe en Supabase
+        existe = supabase.table("usuarios").select("id").eq("email", email).execute()
+        if existe.data:
             return jsonify({"error": "Este email ya está registrado"})
 
+        # Guardar en Supabase
         password_hash = hash_password(password)
+        supabase.table("usuarios").insert({
+            "nombre": nombre,
+            "email": email,
+            "password": password_hash
+        }).execute()
 
-        cursor.execute("""
-            INSERT INTO usuarios
-            (nombre, email, password, verificado)
-            VALUES (?, ?, ?, 1)
-        """, (nombre, email, password_hash))
-
-        conn.commit()
-        conn.close()
-
-        return jsonify({
-            "ok": "Cuenta creada correctamente"
-        })
+        return jsonify({"ok": "Cuenta creada correctamente. Ya puedes iniciar sesión."})
 
     except Exception as e:
         print("ERROR registro:", str(e))
@@ -326,19 +298,16 @@ def iniciar_sesion():
         password = data.get("password", "")
         password_hash = hash_password(password)
 
-        conn = sqlite3.connect('savianos.db')
-        cursor = conn.cursor()
-        cursor.execute('''
-            SELECT id, nombre, verificado FROM usuarios 
-            WHERE (email = ? OR LOWER(nombre) = ?) AND password = ?
-        ''', (email_o_nombre, email_o_nombre, password_hash))
-        usuario = cursor.fetchone()
-        conn.close()
+        # Buscar por email o nombre en Supabase
+        resultado = supabase.table("usuarios").select("id, nombre").or_(
+            f"email.eq.{email_o_nombre},nombre.ilike.{email_o_nombre}"
+        ).eq("password", password_hash).execute()
 
-        if not usuario:
+        if not resultado.data:
             return jsonify({"error": "Email/nombre o contraseña incorrectos"})
 
-        session["usuario"] = {"id": usuario[0], "nombre": usuario[1]}
+        usuario = resultado.data[0]
+        session["usuario"] = {"id": usuario["id"], "nombre": usuario["nombre"]}
         return jsonify({"ok": "Sesión iniciada"})
 
     except Exception as e:
