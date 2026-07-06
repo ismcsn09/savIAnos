@@ -272,13 +272,13 @@ def registro():
             return jsonify({"error": "La contraseña debe tener al menos 6 caracteres"})
 
         # Verificar si email ya existe en Supabase
-        existe = supabase.table("usuarios").select("id").eq("email", email).execute()
+        existe = supabase.table("Usuarios").select("id").eq("email", email).execute()
         if existe.data:
             return jsonify({"error": "Este email ya está registrado"})
 
         # Guardar en Supabase
         password_hash = hash_password(password)
-        supabase.table("usuarios").insert({
+        supabase.table("Usuarios").insert({
             "nombre": nombre,
             "email": email,
             "password": password_hash
@@ -299,7 +299,7 @@ def iniciar_sesion():
         password_hash = hash_password(password)
 
         # Buscar por email o nombre en Supabase
-        resultado = supabase.table("usuarios").select("id, nombre").or_(
+        resultado = supabase.table("Usuarios").select("id, nombre").or_(
             f"email.eq.{email_o_nombre},nombre.ilike.{email_o_nombre}"
         ).eq("password", password_hash).execute()
 
