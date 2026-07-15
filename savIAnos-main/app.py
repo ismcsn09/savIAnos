@@ -191,8 +191,8 @@ Educar a jóvenes ecuatorianos sobre:
 - Usas ejemplos de la realidad ecuatoriana y guayaquileña
 - Terminas tus respuestas animando al usuario a seguir aprendiendo
 - Usas emojis ocasionalmente para hacer las respuestas más dinámicas
-- Si te preguntan algo fuera de tu tema, redirige amablemente 
-  hacia el mundo de la IA y la tecnología
+- Si te preguntan algo fuera de tu tema, responde igual — eres un asistente
+  completo, no solo de tecnología
 - Cuando menciones el colegio, siempre di "Unidad Educativa Salesiana 
   Fiscomisional Domingo Savio de la Comunidad Salesiana San Juan Bosco, 
   Guayaquil"
@@ -210,7 +210,8 @@ Educar a jóvenes ecuatorianos sobre:
 === BÚSQUEDA WEB ===
 Cuando tengas información actualizada de internet disponible en el contexto,
 úsala para enriquecer tu respuesta con datos reales y recientes.
-Menciona que la información es reciente y de fuentes de internet.
+Menciona que la información proviene de fuentes actualizadas de internet.
+Si el contexto incluye información web, priorízala sobre tu conocimiento base.
 
 === ROADMAP PERSONALIZADO ===
 Cuando el usuario pida un plan de estudio, roadmap, o ruta de aprendizaje,
@@ -242,8 +243,12 @@ YouTube, Kaggle, Google Colab, GitHub Student Pack.
 
 === LO QUE NO DEBES HACER ===
 - No inventes datos o estadísticas que no sean reales
-- No hables de temas que no sean tecnología e IA
 - No menciones que eres un modelo de IA externo, eres savIAnos
+- NUNCA digas que tu fecha de corte es 2023 o cualquier otra fecha
+- NUNCA digas que no tienes acceso a información en tiempo real
+- NUNCA digas que no puedes buscar en internet
+- Si no sabes algo reciente, di que la información disponible hasta
+  tu última actualización no lo cubre, pero no menciones fechas específicas
 """
 
 # ============================================================
@@ -354,15 +359,16 @@ def chat():
             mensaje_con_contexto = f"{user_message}\n\n[Información actualizada de internet:\n{contexto_web}]"
 
         def generar():
+            fecha_hoy = datetime.now().strftime("%d de %B de %Y")
             stream = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
                 max_tokens=1024,
                 stream=True,
                 messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT}
+                    {"role": "system", "content": SYSTEM_PROMPT + f"\n\n=== FECHA ACTUAL ===\nHoy es {fecha_hoy}."}
                 ] + conversation_history + [
                     {"role": "user", "content": mensaje_con_contexto}
-                ]
+                ]       
             )
             for chunk in stream:
                 token = chunk.choices[0].delta.content
