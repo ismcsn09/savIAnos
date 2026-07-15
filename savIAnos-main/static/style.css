@@ -1,0 +1,1032 @@
+/* ================================================
+   RESET Y BASE
+================================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #020818;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* ================================================
+   FONDO ANIMADO CON PARTÍCULAS
+   Crea un efecto de estrellas/partículas flotantes
+================================================ */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(ellipse at 20% 50%, rgba(0, 68, 204, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(0, 34, 102, 0.2) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 80%, rgba(0, 100, 255, 0.1) 0%, transparent 50%);
+    /* Gradientes radiales que dan profundidad al fondo */
+    animation: bgPulse 8s ease-in-out infinite;
+    z-index: 0;
+}
+
+@keyframes bgPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+    /* El fondo respira suavemente */
+}
+
+/* ================================================
+   LAYOUT PRINCIPAL - APROVECHA TODA LA PANTALLA
+================================================ */
+.main-layout {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    overflow: hidden;
+}
+
+/* ================================================
+   PANEL IZQUIERDO - INFO DEL BOT
+================================================ */
+.side-panel {
+    width: 320px;
+    min-width: 320px;
+    background: rgba(0, 15, 50, 0.8);
+    backdrop-filter: blur(20px);
+    /* Efecto vidrio esmerilado */
+    border-right: 1px solid rgba(0, 68, 204, 0.3);
+    display: flex;
+    flex-direction: column;
+    padding: 40px 30px;
+    gap: 30px;
+}
+
+.side-logo {
+    text-align: center;
+}
+
+.side-avatar {
+    font-size: 4rem;
+    animation: bounce 3s ease-in-out infinite;
+    display: block;
+    margin-bottom: 15px;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.side-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: 2px;
+}
+
+.side-title span {
+    color: #4d8aff;
+    /* La parte "IA" en azul brillante */
+}
+
+.side-subtitle {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.5);
+    margin-top: 5px;
+}
+
+.side-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 68, 204, 0.2);
+    padding: 10px 15px;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 68, 204, 0.3);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: #00ff88;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+    /* El punto verde pulsa para indicar que está activo */
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
+    50% { box-shadow: 0 0 0 6px rgba(0, 255, 136, 0); }
+}
+
+.status-text {
+    color: rgba(255,255,255,0.8);
+    font-size: 0.85rem;
+}
+
+.side-divider {
+    width: 100%;
+    height: 1px;
+    background: rgba(0, 68, 204, 0.3);
+}
+
+.side-info h3 {
+    color: rgba(255,255,255,0.5);
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+}
+
+.side-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.side-tag {
+    background: rgba(0, 68, 204, 0.2);
+    border: 1px solid rgba(0, 68, 204, 0.4);
+    color: #90b4ff;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+}
+
+.side-school {
+    margin-top: auto;
+    /* Empuja el badge del colegio hacia abajo */
+    text-align: center;
+}
+
+.school-logo-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: white;
+    padding: 5px;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.school-logo-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.school-name {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.75rem;
+    line-height: 1.5;
+}
+
+/* ================================================
+   ÁREA PRINCIPAL DEL CHAT
+================================================ */
+.chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: rgba(0, 10, 35, 0.6);
+    backdrop-filter: blur(10px);
+}
+
+/* Header del chat */
+.chat-header {
+    background: rgba(0, 15, 50, 0.9);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0, 68, 204, 0.3);
+    padding: 20px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chat-header-left h2 {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.chat-header-left p {
+    color: rgba(255,255,255,0.5);
+    font-size: 0.8rem;
+    margin-top: 2px;
+}
+
+.chat-header-right {
+    display: flex;
+    gap: 10px;
+}
+
+.header-btn {
+    background: rgba(0, 68, 204, 0.2);
+    border: 1px solid rgba(0, 68, 204, 0.4);
+    color: white;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-btn:hover {
+    background: rgba(0, 68, 204, 0.5);
+    transform: scale(1.1);
+}
+
+/* Área de mensajes */
+.chat-box {
+    flex: 1;
+    overflow-y: auto;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.chat-box::-webkit-scrollbar {
+    width: 4px;
+}
+
+.chat-box::-webkit-scrollbar-thumb {
+    background: rgba(0, 68, 204, 0.5);
+    border-radius: 4px;
+}
+
+/* Mensajes */
+.message {
+    display: flex;
+    max-width: 70%;
+    animation: messageIn 0.3s ease;
+    /* Animación de entrada para cada mensaje */
+}
+
+@keyframes messageIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+        /* El mensaje aparece desde abajo */
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.bot-message {
+    align-self: flex-start;
+}
+
+.user-message {
+    align-self: flex-end;
+}
+
+.message-content {
+    padding: 14px 18px;
+    border-radius: 18px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.bot-message .message-content {
+    background: rgba(0, 30, 80, 0.8);
+    color: #e0e8ff;
+    border: 1px solid rgba(0, 68, 204, 0.3);
+    border-bottom-left-radius: 4px;
+    backdrop-filter: blur(10px);
+}
+
+.user-message .message-content {
+    background: linear-gradient(135deg, #0044cc, #0066ff);
+    color: white;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 4px 15px rgba(0, 68, 204, 0.4);
+}
+
+/* Input area */
+.chat-input-area {
+    padding: 20px 30px;
+    background: rgba(0, 15, 50, 0.9);
+    border-top: 1px solid rgba(0, 68, 204, 0.3);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.chat-input-area input {
+    flex: 1;
+    padding: 14px 20px;
+    background: rgba(0, 30, 80, 0.6);
+    border: 1px solid rgba(0, 68, 204, 0.3);
+    border-radius: 25px;
+    font-size: 0.95rem;
+    color: white;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.chat-input-area input::placeholder {
+    color: rgba(255,255,255,0.3);
+}
+
+.chat-input-area input:focus {
+    border-color: #0044cc;
+    background: rgba(0, 30, 80, 0.8);
+}
+
+.chat-input-area button {
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #0033aa, #0055ff);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(0, 68, 204, 0.4);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+#mic-btn {
+    background: rgba(0, 68, 204, 0.2);
+    border: 1px solid rgba(0, 68, 204, 0.4);
+    color: white;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#mic-btn:hover {
+    background: rgba(0, 68, 204, 0.5);
+    transform: scale(1.1);
+}
+
+#mic-btn.grabando {
+    background: rgba(255, 50, 50, 0.4);
+    border-color: rgba(255, 50, 50, 0.8);
+    animation: micPulse 1s infinite;
+    /* Pulsa en rojo mientras graba */
+}
+
+@keyframes micPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 50, 50, 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(255, 50, 50, 0); }
+}
+
+
+.chat-input-area button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 68, 204, 0.6);
+}
+
+/* ================================================
+   BOTONES DE SUGERENCIAS
+================================================ */
+.suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 4px 0;
+}
+
+.suggestion-btn {
+    background: rgba(0, 30, 80, 0.6);
+    border: 1px solid rgba(0, 68, 204, 0.5);
+    color: #90b4ff;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    backdrop-filter: blur(10px);
+}
+
+.suggestion-btn:hover {
+    background: rgba(0, 68, 204, 0.4);
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0, 68, 204, 0.3);
+}
+
+/* ================================================
+   MODAL SOBRE SAVIANOS
+================================================ */
+.info-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+}
+
+.info-modal.active {
+    display: flex;
+}
+
+.info-content {
+    background: rgba(0, 15, 50, 0.95);
+    border: 1px solid rgba(0, 68, 204, 0.4);
+    border-radius: 20px;
+    padding: 40px;
+    width: 450px;
+    text-align: center;
+    position: relative;
+    animation: fadeInUp 0.3s ease;
+    backdrop-filter: blur(20px);
+}
+
+.info-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0, 68, 204, 0.2);
+    border: 1px solid rgba(0, 68, 204, 0.4);
+    color: white;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.info-avatar {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.info-content h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: 2px;
+}
+
+.info-content h2 span {
+    color: #4d8aff;
+}
+
+.info-version {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 15px;
+}
+
+.info-divider {
+    width: 50px;
+    height: 2px;
+    background: #0044cc;
+    margin: 15px auto;
+    border-radius: 2px;
+}
+
+.info-text {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.info-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 5px;
+}
+
+.info-tags span {
+    background: rgba(0, 68, 204, 0.2);
+    border: 1px solid rgba(0, 68, 204, 0.4);
+    color: #90b4ff;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+}
+
+.info-school {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.8;
+}
+
+/* ================================================
+   PÁGINA DE INICIO
+================================================ */
+.landing-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #020818;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.landing-page::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(ellipse at 30% 40%, rgba(0, 68, 204, 0.2) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 60%, rgba(0, 34, 102, 0.2) 0%, transparent 60%);
+    animation: bgPulse 6s ease-in-out infinite;
+}
+
+.landing-content {
+    text-align: center;
+    color: white;
+    padding: 40px;
+    max-width: 600px;
+    animation: fadeInUp 0.8s ease;
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.landing-avatar {
+    font-size: 6rem;
+    margin-bottom: 20px;
+    animation: bounce 3s ease-in-out infinite;
+    display: block;
+}
+
+.landing-title {
+    font-size: 5rem;
+    font-weight: 800;
+    letter-spacing: 4px;
+    margin-bottom: 10px;
+    text-shadow: 0 0 40px rgba(0, 68, 204, 0.5);
+}
+
+.landing-title span {
+    color: #4d8aff;
+}
+
+.landing-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.7;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.landing-divider {
+    width: 60px;
+    height: 3px;
+    background: #4d8aff;
+    margin: 0 auto 30px;
+    border-radius: 3px;
+}
+
+.landing-description {
+    font-size: 0.95rem;
+    opacity: 0.6;
+    line-height: 1.7;
+    margin-bottom: 30px;
+}
+
+.landing-badge {
+    display: inline-block;
+    background: rgba(0, 68, 204, 0.2);
+    border: 1px solid rgba(0, 68, 204, 0.4);
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    margin-bottom: 40px;
+    color: #90b4ff;
+}
+
+.landing-btn {
+    background: linear-gradient(135deg, #0033aa, #0055ff);
+    color: white;
+    border: none;
+    padding: 16px 50px;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 8px 30px rgba(0, 68, 204, 0.5);
+    letter-spacing: 1px;
+}
+
+.landing-btn:hover {
+    transform: scale(1.05) translateY(-3px);
+    box-shadow: 0 12px 40px rgba(0, 68, 204, 0.7);
+}
+
+/* ================================================
+   MODO OSCURO (ahora es el modo por defecto)
+================================================ */
+.theme-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: scale(1.1);
+}
+
+/* ================================================
+   RESPONSIVE - CELULAR
+================================================ */
+@media (max-width: 768px) {
+    .side-panel {
+        display: none !important;
+        width: 0 !important;
+        min-width: 0 !important;
+    }
+
+    html, body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .main-layout {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .chat-area {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-box {
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
+    }
+
+    .chat-input-area {
+        padding: 10px 12px;
+        gap: 6px;
+        flex-shrink: 0;
+    }
+
+    .chat-input-area input {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+
+    #mic-btn,
+    #img-btn,
+    #send-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        flex-shrink: 0;
+        padding: 0;
+        border-radius: 50%;
+    }
+
+    .message { max-width: 85%; }
+    .landing-title { font-size: 2.8rem; }
+}
+
+/* ================================================
+   MODO CLARO
+================================================ */
+body.light {
+    background: #e8eeff;
+}
+
+body.light::before {
+    background: 
+        radial-gradient(ellipse at 20% 50%, rgba(0, 68, 204, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(0, 34, 102, 0.05) 0%, transparent 50%);
+}
+
+body.light .landing-page {
+    background: #f0f4ff;
+}
+
+body.light .main-layout,
+body.light .chat-area {
+    background: rgba(240, 244, 255, 0.95);
+}
+
+body.light .chat-header {
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom: 1px solid rgba(0, 68, 204, 0.2);
+}
+
+body.light .chat-header-left h2 {
+    color: #001a66;
+}
+
+body.light .chat-header-left p {
+    color: rgba(0, 26, 102, 0.6);
+}
+
+body.light .chat-box {
+    background: transparent;
+}
+
+body.light .bot-message .message-content {
+    background: rgba(255, 255, 255, 0.9);
+    color: #001a66;
+    border: 1px solid rgba(0, 68, 204, 0.2);
+}
+
+body.light .chat-input-area {
+    background: rgba(255, 255, 255, 0.95);
+    border-top: 1px solid rgba(0, 68, 204, 0.2);
+}
+
+body.light .chat-input-area input {
+    background: rgba(240, 244, 255, 0.8);
+    color: #001a66;
+    border: 1px solid rgba(0, 68, 204, 0.3);
+}
+
+body.light .chat-input-area input::placeholder {
+    color: rgba(0, 26, 102, 0.4);
+}
+
+body.light .side-panel {
+    background: rgba(255, 255, 255, 0.95);
+    border-right: 1px solid rgba(0, 68, 204, 0.2);
+}
+
+body.light .side-title,
+body.light .status-text,
+body.light .school-name {
+    color: #001a66;
+}
+
+body.light .suggestion-btn {
+    background: rgba(255, 255, 255, 0.8);
+    color: #0044cc;
+    border: 1px solid rgba(0, 68, 204, 0.3);
+}
+/* ================================================
+   AVATAR ANIMADO
+================================================ */
+.chat-header-left h2 .avatar-bot {
+    display: inline-block;
+    transition: transform 0.1s;
+}
+
+.chat-header-left h2 .avatar-bot.hablando {
+    animation: hablar 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes hablar {
+    0% { transform: scale(1) rotate(-5deg); }
+    100% { transform: scale(1.2) rotate(5deg); }
+}
+/* ================================================
+   BOTÓN COPIAR
+================================================ */
+.message-wrapper {
+    position: relative;
+}
+
+.copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 68, 204, 0.2);
+    border: 1px solid rgba(0, 68, 204, 0.4);
+    color: white;
+    border-radius: 8px;
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.message-wrapper:hover .copy-btn {
+    opacity: 1;
+}
+
+.copy-btn.copiado {
+    background: rgba(0, 200, 100, 0.3);
+    border-color: rgba(0, 200, 100, 0.5);
+}
+
+/* ================================================
+   HISTORIAL DE CHAT
+================================================ */
+.historial-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 50;
+    background: rgba(0, 68, 204, 0.2);
+    border: 1px solid rgba(0, 68, 204, 0.4);
+    color: white;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.historial-btn:hover {
+    background: rgba(0, 68, 204, 0.5);
+}
+
+.historial-panel {
+    position: fixed;
+    top: 0;
+    left: -320px;
+    width: 300px;
+    height: 100%;
+    background: rgba(0, 10, 35, 0.97);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(0, 68, 204, 0.3);
+    z-index: 200;
+    transition: left 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.historial-panel.abierto {
+    left: 0;
+}
+
+.historial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 199;
+    display: none;
+}
+
+.historial-overlay.activo {
+    display: block;
+}
+
+.historial-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 68, 204, 0.3);
+}
+
+.historial-header h3 {
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.historial-close {
+    background: rgba(0, 68, 204, 0.2);
+    border: 1px solid rgba(0, 68, 204, 0.4);
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.historial-lista {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.historial-lista::-webkit-scrollbar {
+    width: 4px;
+}
+
+.historial-lista::-webkit-scrollbar-thumb {
+    background: rgba(0, 68, 204, 0.5);
+    border-radius: 4px;
+}
+
+.historial-item {
+    background: rgba(0, 30, 80, 0.6);
+    border: 1px solid rgba(0, 68, 204, 0.2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.historial-item:hover {
+    background: rgba(0, 68, 204, 0.3);
+    border-color: rgba(0, 68, 204, 0.5);
+}
+
+.historial-item .hi-role {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 3px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.historial-item.usuario .hi-role {
+    color: #4d8aff;
+}
+
+.historial-item .hi-texto {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.8);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.historial-vacio {
+    text-align: center;
+    color: rgba(255,255,255,0.3);
+    font-size: 0.85rem;
+    margin-top: 40px;
+}
+
+@media (max-width: 768px) {
+    .historial-btn {
+        top: 15px;
+        left: 15px;
+        width: 34px;
+        height: 34px;
+        font-size: 1rem;
+    }
+
+    .historial-panel {
+        width: 280px;
+        left: -280px;
+    }
+}

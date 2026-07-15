@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>savIAnos</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- Botón historial -->
+<button class="historial-btn" onclick="toggleHistorial()" title="Historial">☰</button>
+
+<!-- Overlay -->
+<div class="historial-overlay" id="historial-overlay" onclick="cerrarHistorial()"></div>
+
+<!-- Panel historial -->
+<div class="historial-panel" id="historial-panel">
+    <div class="historial-header">
+        <h3>💬 Historial</h3>
+        <button class="historial-close" onclick="cerrarHistorial()">✕</button>
+    </div>
+    <div class="historial-lista" id="historial-lista">
+        <div class="historial-vacio">Aún no hay mensajes en esta sesión.</div>
+    </div>
+</div>
+
+<!-- ================================================
+     PÁGINA DE INICIO
+================================================ -->
+<div class="landing-page" id="landing-page">
+    <div class="landing-content">
+        <span class="landing-avatar">🤖</span>
+        <h1 class="landing-title">sav<span>IA</span>nos</h1>
+        <p class="landing-subtitle">
+            Tu asistente de Inteligencia Artificial<br>
+            sobre el auge tecnológico en Ecuador
+        </p>
+
+        <div class="landing-divider"></div>
+
+        <p class="landing-description">
+            Aprende sobre IA, descubre cómo Ecuador se suma
+            a la revolución tecnológica y explora las oportunidades
+            que el futuro digital tiene para ti.
+        </p>
+
+        <div class="landing-badge">
+            🏫 Unidad Educativa Salesiana Fiscomisional Domingo Savio
+        </div>
+
+        <br><br>
+
+        <button class="landing-btn" onclick="enterChat()">
+            Comenzar ➤
+        </button>
+    </div>
+</div>
+
+<!-- ================================================
+     LAYOUT PRINCIPAL
+================================================ -->
+<div class="main-layout">
+
+    <!-- PANEL IZQUIERDO -->
+    <div class="side-panel">
+
+        <div class="side-logo">
+            <span class="side-avatar">🤖</span>
+            <h1 class="side-title">sav<span>IA</span>nos</h1>
+            <p class="side-subtitle">Asistente de IA Educativo</p>
+        </div>
+
+        <div class="side-status">
+            <div class="status-dot"></div>
+            <span class="status-text">En línea y listo para ayudar</span>
+        </div>
+
+        <div class="side-divider"></div>
+
+        <div class="side-info">
+            <h3>Tecnologías</h3>
+            <div class="side-tags">
+                <span class="side-tag">🐍 Python</span>
+                <span class="side-tag">⚗️ Flask</span>
+                <span class="side-tag">🤖 LLaMA IA</span>
+                <span class="side-tag">🌐 HTML/CSS</span>
+                <span class="side-tag">☁️ Render</span>
+            </div>
+        </div>
+
+        <div class="side-divider"></div>
+
+        <div class="side-info">
+            <h3>Puedo ayudarte con</h3>
+            <div class="side-tags">
+                <span class="side-tag">🧠 Qué es la IA</span>
+                <span class="side-tag">🇪🇨 Tech en Ecuador</span>
+                <span class="side-tag">🎓 Carreras tech</span>
+                <span class="side-tag">💻 Programación</span>
+            </div>
+        </div>
+
+        <div class="side-school">
+            <div class="school-logo-circle">
+                <img src="/static/dsavio.png" alt="Domingo Savio">
+            </div>
+
+            <p class="school-name">
+                Unidad Educativa Salesiana<br>
+                Fiscomisional Domingo Savio<br>
+                <small>Comunidad San Juan Bosco · Guayaquil</small>
+            </p>
+        </div>
+
+    </div>
+
+    <!-- ÁREA DEL CHAT -->
+    <div class="chat-area">
+
+        <!-- Header -->
+        <div class="chat-header">
+            <div class="chat-header-left">
+                <h2><span class="avatar-bot">🤖</span> savIAnos</h2>
+                <p>Pregúntame sobre IA y tecnología en Ecuador</p>
+            </div>
+
+            <div class="chat-header-right">
+                <span style="color:rgba(255,255,255,0.5);font-size:0.8rem;margin-right:5px;">{{ usuario.nombre }}</span>
+                <button class="header-btn" onclick="toggleInfo()" title="Sobre savIAnos">ℹ️</button>
+                <button class="header-btn theme-btn" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
+                <a href="/cerrar-sesion" class="header-btn" title="Cerrar sesión" style="text-decoration:none;display:flex;align-items:center;justify-content:center;">🚪</a>
+            </div>
+        </div>
+
+        <!-- Mensajes -->
+        <div class="chat-box" id="chat-box">
+
+            <div class="message bot-message">
+                <div class="message-content">
+                    ¡Hola! Soy <strong>savIAnos</strong> 👋,
+                    tu asistente sobre Inteligencia Artificial
+                    y tecnología en Ecuador.
+                    ¿Qué quieres aprender hoy?
+                </div>
+            </div>
+
+            <div class="suggestions">
+                <button class="suggestion-btn"
+                    onclick="askSuggestion('¿Qué es la inteligencia artificial?')">
+                    🤖 ¿Qué es la IA?
+                </button>
+
+                <button class="suggestion-btn"
+                    onclick="askSuggestion('¿Cómo se usa la IA en Ecuador?')">
+                    🇪🇨 IA en Ecuador
+                </button>
+
+                <button class="suggestion-btn"
+                    onclick="askSuggestion('¿Qué carreras hay en tecnología en Ecuador?')">
+                    🎓 Carreras tech
+                </button>
+
+                <button class="suggestion-btn"
+                    onclick="askSuggestion('¿Por qué es importante aprender programación?')">
+                    💻 ¿Por qué programar?
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Input -->
+        <div class="chat-input-area">
+            <button id="mic-btn" onclick="toggleVoz()" title="Hablar">🎤</button>
+            <input
+                type="text"
+                id="user-input"
+                placeholder="Escribe o habla tu pregunta..."
+            >
+            <button id="img-btn" onclick="document.getElementById('img-input').click()" title="Enviar imagen">🖼️</button>
+            <input type="file" id="img-input" accept="image/*" style="display:none" onchange="enviarImagen(this)">
+            <button id="send-btn" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal Sobre savIAnos -->
+<div class="info-modal" id="info-modal">
+    <div class="info-content">
+
+        <button class="info-close" onclick="toggleInfo()">✕</button>
+
+        <div class="info-avatar">🤖</div>
+
+        <h2>sav<span>IA</span>nos</h2>
+
+        <p class="info-version">Versión 1.0</p>
+
+        <div class="info-divider"></div>
+
+        <p class="info-text">
+            Asistente educativo de Inteligencia Artificial creado por
+            estudiantes de Bachillerato Técnico en Desarrollo de Software.
+        </p>
+
+        <div class="info-tags">
+            <span>🐍 Python</span>
+            <span>⚗️ Flask</span>
+            <span>🤖 LLaMA IA</span>
+            <span>🌐 HTML/CSS</span>
+        </div>
+
+        <div class="info-divider"></div>
+
+        <p class="info-school">
+            🏫 <strong>Unidad Educativa Salesiana Fiscomisional Domingo Savio</strong><br>
+            <small>Comunidad Salesiana San Juan Bosco · Guayaquil</small>
+        </p>
+
+    </div>
+</div>
+
+<script>
+let conversationHistory = [];
+
+async function sendMessage() {
+    const input = document.getElementById("user-input");
+    const message = input.value.trim();
+
+    if (!message) return;
+
+    appendMessage(message, "user");
+    agregarAlHistorial(message, "user");
+    input.value = "";
+
+    conversationHistory.push({
+        role: "user",
+        content: message
+    });
+
+    botHablando();
+    const typingIndicator = appendMessage("✦ Escribiendo...", "bot", true);
+
+    try {
+        const response = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                message: message,
+                history: conversationHistory
+            })
+        });
+
+        typingIndicator.remove();
+
+        const chatBox = document.getElementById("chat-box");
+        const wrapperDiv = document.createElement("div");
+        wrapperDiv.className = "message-wrapper";
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "message bot-message";
+        const contentDiv = document.createElement("div");
+        contentDiv.className = "message-content";
+        messageDiv.appendChild(contentDiv);
+
+        const copyBtn = document.createElement("button");
+        copyBtn.className = "copy-btn";
+        copyBtn.textContent = "📋 Copiar";
+        copyBtn.onclick = function() {
+            navigator.clipboard.writeText(contentDiv.textContent).then(() => {
+                copyBtn.textContent = "✅ Copiado";
+                copyBtn.classList.add("copiado");
+                setTimeout(() => {
+                    copyBtn.textContent = "📋 Copiar";
+                    copyBtn.classList.remove("copiado");
+                }, 2000);
+            });
+        };
+        wrapperDiv.appendChild(copyBtn);
+        wrapperDiv.appendChild(messageDiv);
+        chatBox.appendChild(wrapperDiv);
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullText = "";
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value);
+            const lines = chunk.split("\n");
+
+            for (const line of lines) {
+                if (line.startsWith("data: ")) {
+                    const token = line.replace("data: ", "");
+                    if (token === "[DONE]") {
+                        agregarAlHistorial(fullText, "bot");
+                        botSilencio();
+                        conversationHistory.push({
+                            role: "assistant",
+                            content: fullText
+                        });
+
+                        if (fullText.includes("🔍 **Fuentes:**")) {
+                            const partes = fullText.split("🔍 **Fuentes:**");
+                            const textoMain = partes[0].trim();
+                            const fuentesText = partes[1] ? partes[1].trim() : "";
+                            contentDiv.textContent = textoMain;
+
+                            if (fuentesText) {
+                                let fuentesLinks = "";
+                                const lineas = fuentesText.split("\n").filter(l => l.trim().startsWith("-"));
+                                lineas.forEach(linea => {
+                                    const contenido = linea.replace(/^- /, "").trim();
+                                    const partesFuente = contenido.split(": http");
+                                    if (partesFuente.length >= 2) {
+                                        const nombre = partesFuente[0];
+                                        const url = "http" + partesFuente[1];
+                                        fuentesLinks += `<a href="${url}" target="_blank" style="display:block;color:#4d8aff;text-decoration:none;margin-bottom:2px;">• ${nombre}</a>`;
+                                    }
+                                });
+                                const fuentesDiv = document.createElement("div");
+                                fuentesDiv.innerHTML = `
+                                    <div style="margin-top:10px;border-top:1px solid rgba(0,68,204,0.3);padding-top:8px;font-size:0.8rem;">
+                                        <div style="font-weight:600;margin-bottom:4px;">🔍 Fuentes:</div>
+                                        ${fuentesLinks}
+                                    </div>`;
+                                contentDiv.appendChild(fuentesDiv);
+                            }
+                        }
+                    } else {
+                        fullText += token;
+                        if (!fullText.includes("🔍 **Fuentes:**")) {
+                            contentDiv.textContent = fullText;
+                        }
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    }
+                }
+            }
+        }
+
+    } catch (error) {
+        botSilencio();
+        appendMessage("Hubo un error. Intenta de nuevo.", "bot");
+    }
+}
+
+function botHablando() {
+    const avatar = document.querySelector(".avatar-bot");
+    if (avatar) avatar.classList.add("hablando");
+}
+
+function botSilencio() {
+    const avatar = document.querySelector(".avatar-bot");
+    if (avatar) avatar.classList.remove("hablando");
+}
+
+function appendMessage(text, sender, isTyping = false) {
+    const chatBox = document.getElementById("chat-box");
+    const messageDiv = document.createElement("div");
+    messageDiv.className = `message ${sender}-message`;
+    const contentDiv = document.createElement("div");
+    contentDiv.className = "message-content";
+    contentDiv.textContent = text;
+    messageDiv.appendChild(contentDiv);
+    chatBox.appendChild(messageDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+    return messageDiv;
+}
+
+function typeMessage(text, sender) {
+    const chatBox = document.getElementById("chat-box");
+    const wrapperDiv = document.createElement("div");
+    wrapperDiv.className = "message-wrapper";
+    const messageDiv = document.createElement("div");
+    messageDiv.className = `message ${sender}-message`;
+    const contentDiv = document.createElement("div");
+    contentDiv.className = "message-content";
+    messageDiv.appendChild(contentDiv);
+
+    if (sender === "bot") {
+        const copyBtn = document.createElement("button");
+        copyBtn.className = "copy-btn";
+        copyBtn.textContent = "📋 Copiar";
+        copyBtn.onclick = function() {
+            navigator.clipboard.writeText(contentDiv.textContent).then(() => {
+                copyBtn.textContent = "✅ Copiado";
+                copyBtn.classList.add("copiado");
+                setTimeout(() => {
+                    copyBtn.textContent = "📋 Copiar";
+                    copyBtn.classList.remove("copiado");
+                }, 2000);
+            });
+        };
+        wrapperDiv.appendChild(copyBtn);
+    }
+
+    wrapperDiv.appendChild(messageDiv);
+    chatBox.appendChild(wrapperDiv);
+
+    let textoMain = text;
+    let fuentesHTML = "";
+
+    if (text.includes("🔍 **Fuentes:**")) {
+        const partes = text.split("🔍 **Fuentes:**");
+        textoMain = partes[0].trim();
+        const fuentesText = partes[1] ? partes[1].trim() : "";
+
+        if (fuentesText) {
+            let fuentesLinks = "";
+            const lineas = fuentesText.split("\n").filter(l => l.trim().startsWith("-"));
+            lineas.forEach(linea => {
+                const contenido = linea.replace(/^- /, "").trim();
+                const partesFuente = contenido.split(": http");
+                if (partesFuente.length >= 2) {
+                    const nombre = partesFuente[0];
+                    const url = "http" + partesFuente[1];
+                    fuentesLinks += `<a href="${url}" target="_blank" style="display:block;color:#4d8aff;text-decoration:none;margin-bottom:2px;">• ${nombre}</a>`;
+                }
+            });
+            fuentesHTML = `
+                <div style="margin-top:10px;border-top:1px solid rgba(0,68,204,0.3);padding-top:8px;font-size:0.8rem;">
+                    <div style="font-weight:600;margin-bottom:4px;">🔍 Fuentes:</div>
+                    ${fuentesLinks}
+                </div>`;
+        }
+    }
+
+    let i = 0;
+    const speed = 15;
+    function escribir() {
+        if (i < textoMain.length) {
+            contentDiv.textContent += textoMain.charAt(i);
+            i++;
+            chatBox.scrollTop = chatBox.scrollHeight;
+            setTimeout(escribir, speed);
+        } else if (fuentesHTML) {
+            const fuentesDiv = document.createElement("div");
+            fuentesDiv.innerHTML = fuentesHTML;
+            contentDiv.appendChild(fuentesDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    }
+    escribir();
+
+    return messageDiv;
+}
+
+function askSuggestion(question) {
+    const input = document.getElementById("user-input");
+    input.value = question;
+    sendMessage();
+    const suggestions = document.querySelector(".suggestions");
+    if (suggestions) suggestions.style.display = "none";
+}
+
+function limpiarChat() {
+    if (!confirm("¿Limpiar la conversación?")) return;
+    conversationHistory = [];
+    const chatBox = document.getElementById("chat-box");
+    chatBox.innerHTML = `
+        <div class="message bot-message">
+            <div class="message-content">
+                ¡Hola! Soy <strong>savIAnos</strong> 👋
+            </div>
+        </div>
+    `;
+}
+
+function toggleTheme() {
+    const body = document.body;
+    const btn = document.querySelector(".theme-btn");
+    body.classList.toggle("light");
+    btn.textContent = body.classList.contains("light") ? "🌙" : "☀️";
+}
+
+function toggleInfo() {
+    document.getElementById("info-modal").classList.toggle("active");
+}
+
+function enterChat() {
+    const landing = document.getElementById("landing-page");
+    landing.style.opacity = "0";
+    landing.style.transition = "opacity 0.5s ease";
+    setTimeout(() => { landing.style.display = "none"; }, 500);
+}
+
+document.getElementById("user-input").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") sendMessage();
+});
+
+// ================================================
+// HISTORIAL
+// ================================================
+function toggleHistorial() {
+    const panel = document.getElementById("historial-panel");
+    const overlay = document.getElementById("historial-overlay");
+    panel.classList.toggle("abierto");
+    overlay.classList.toggle("activo");
+}
+
+function cerrarHistorial() {
+    document.getElementById("historial-panel").classList.remove("abierto");
+    document.getElementById("historial-overlay").classList.remove("activo");
+}
+
+function agregarAlHistorial(texto, rol) {
+    const lista = document.getElementById("historial-lista");
+    const vacio = lista.querySelector(".historial-vacio");
+    if (vacio) vacio.remove();
+
+    const item = document.createElement("div");
+    item.className = `historial-item ${rol === "user" ? "usuario" : ""}`;
+
+    const roleDiv = document.createElement("div");
+    roleDiv.className = "hi-role";
+    roleDiv.textContent = rol === "user" ? "Tú" : "savIAnos";
+
+    const textoDiv = document.createElement("div");
+    textoDiv.className = "hi-texto";
+    const textoLimpio = texto.split("🔍 **Fuentes:**")[0].trim();
+    textoDiv.textContent = textoLimpio.length > 60 ? textoLimpio.substring(0, 60) + "..." : textoLimpio;
+
+    item.appendChild(roleDiv);
+    item.appendChild(textoDiv);
+    lista.appendChild(item);
+    lista.scrollTop = lista.scrollHeight;
+}
+
+// ================================================
+// VOZ - Web Speech API
+// ================================================
+let recognition = null;
+let grabando = false;
+
+function toggleVoz() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert('Tu navegador no soporta reconocimiento de voz. Usa Chrome.');
+        return;
+    }
+
+    if (grabando) {
+        recognition.stop();
+        return;
+    }
+
+    recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'es-EC';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    const micBtn = document.getElementById('mic-btn');
+
+    recognition.onstart = function() {
+        grabando = true;
+        micBtn.textContent = '⏹️';
+        micBtn.classList.add('grabando');
+    };
+
+    recognition.onresult = function(event) {
+        const texto = event.results[0][0].transcript;
+        document.getElementById('user-input').value = texto;
+        sendMessage();
+    };
+
+    recognition.onend = function() {
+        grabando = false;
+        micBtn.textContent = '🎤';
+        micBtn.classList.remove('grabando');
+    };
+
+    recognition.onerror = function(event) {
+        grabando = false;
+        micBtn.textContent = '🎤';
+        micBtn.classList.remove('grabando');
+        if (event.error === 'not-allowed') {
+            alert('Necesitas permitir el acceso al micrófono.');
+        }
+    };
+
+    recognition.start();
+}
+
+// ================================================
+// IMAGEN
+// ================================================
+async function enviarImagen(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        const base64 = e.target.result.split(',')[1];
+        const mediaType = file.type;
+
+        const chatBox = document.getElementById("chat-box");
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "message user-message";
+        const contentDiv = document.createElement("div");
+        contentDiv.className = "message-content";
+        const img = document.createElement("img");
+        img.src = e.target.result;
+        img.style.maxWidth = "200px";
+        img.style.borderRadius = "10px";
+        img.style.display = "block";
+        contentDiv.appendChild(img);
+        messageDiv.appendChild(contentDiv);
+        chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        botHablando();
+        const typingIndicator = appendMessage("✦ Analizando imagen...", "bot", true);
+
+        try {
+            const response = await fetch("/imagen", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    image: base64,
+                    media_type: mediaType
+                })
+            });
+
+            const data = await response.json();
+            typingIndicator.remove();
+            typeMessage(data.reply, "bot");
+            botSilencio();
+
+        } catch (error) {
+            typingIndicator.remove();
+            botSilencio();
+            appendMessage("Error al analizar la imagen. Intenta de nuevo.", "bot");
+        }
+
+        input.value = "";
+    };
+
+    reader.readAsDataURL(file);
+}
+</script>
+
+</body>
+</html>
